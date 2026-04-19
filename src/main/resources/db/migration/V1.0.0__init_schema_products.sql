@@ -8,15 +8,15 @@ CREATE SCHEMA IF NOT EXISTS administrative;
 -- ── Products (catalogue global partagé) ─────────────────────────────────────
 
 CREATE TABLE administrative.products (
-    id              UUID            PRIMARY KEY DEFAULT gen_random_uuid(),
+    id              UUID            PRIMARY KEY,
     name            VARCHAR(150)    NOT NULL,
     brand           VARCHAR(100),
     category        VARCHAR(100)    NOT NULL,
     description     TEXT,
     image_url       VARCHAR(500),
-    active          BOOLEAN         NOT NULL DEFAULT TRUE,
-    created_at      TIMESTAMP       NOT NULL DEFAULT now(),
-    updated_at      TIMESTAMP       NOT NULL DEFAULT now()
+    active          BOOLEAN         NOT NULL,
+    created_at      TIMESTAMP       NOT NULL,
+    updated_at      TIMESTAMP       NOT NULL
 );
 
 COMMENT ON TABLE administrative.products IS 'Catalogue global de produits — partagé entre toutes les supérettes. AUCUN PRIX ICI.';

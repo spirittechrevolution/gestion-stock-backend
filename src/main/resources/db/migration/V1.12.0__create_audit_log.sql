@@ -2,7 +2,7 @@
 -- Table d'audit pour tracer toutes les actions importantes
 
 CREATE TABLE administrative.audit_log (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    id UUID PRIMARY KEY,
     event_type VARCHAR(50) NOT NULL, -- ex: SESSION_OPEN, SESSION_CLOSE, SALE_CREATE, CASH_REGISTER_UPDATE
     user_id UUID REFERENCES administrative.users(id),
     store_id UUID REFERENCES administrative.stores(id),
@@ -10,7 +10,7 @@ CREATE TABLE administrative.audit_log (
     session_id UUID REFERENCES administrative.cash_register_sessions(id),
     sale_id UUID REFERENCES administrative.sales(id),
     details TEXT, -- JSON ou texte libre pour stocker les infos complémentaires
-    created_at TIMESTAMP NOT NULL DEFAULT NOW()
+    created_at TIMESTAMP NOT NULL
 );
 
 CREATE INDEX idx_audit_log_store ON administrative.audit_log(store_id);

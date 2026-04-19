@@ -4,7 +4,7 @@
 -- ============================================================================
 
 CREATE TABLE administrative.users (
-    id                  UUID            PRIMARY KEY DEFAULT gen_random_uuid(),
+    id                  UUID            PRIMARY KEY,
     keycloak_id         VARCHAR(100)    NOT NULL UNIQUE,
     first_name          VARCHAR(100)    NOT NULL,
     last_name           VARCHAR(100)    NOT NULL,
@@ -13,18 +13,18 @@ CREATE TABLE administrative.users (
     date_of_birth       DATE,
     address             TEXT,
     city                VARCHAR(100),
-    country             VARCHAR(5)      DEFAULT 'SN',
-    language            VARCHAR(5)      DEFAULT 'fr',
+    country             VARCHAR(5),
+    language            VARCHAR(5),
     avatar_url          VARCHAR(500),
-    is_email_verified   BOOLEAN         NOT NULL DEFAULT FALSE,
-    is_phone_verified   BOOLEAN         NOT NULL DEFAULT FALSE,
+    is_email_verified   BOOLEAN         NOT NULL,
+    is_phone_verified   BOOLEAN         NOT NULL,
     pin_hash            VARCHAR(72)     NOT NULL,
     token_session       VARCHAR(512),
     derniere_connexion  TIMESTAMP,
     deleted_at          TIMESTAMP,
     is_active           BOOLEAN         NOT NULL DEFAULT TRUE,
-    created_at          TIMESTAMP       NOT NULL DEFAULT now(),
-    updated_at          TIMESTAMP       NOT NULL DEFAULT now()
+    created_at          TIMESTAMP       NOT NULL,
+    updated_at          TIMESTAMP       NOT NULL
 );
 
 -- ── User roles (table de collection) ────────────────────────────────────────

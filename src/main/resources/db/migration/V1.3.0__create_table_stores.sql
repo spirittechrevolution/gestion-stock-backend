@@ -4,14 +4,14 @@
 -- ============================================================================
 
 CREATE TABLE administrative.stores (
-    id              UUID            PRIMARY KEY DEFAULT gen_random_uuid(),
+    id              UUID            PRIMARY KEY,
     name            VARCHAR(100)    NOT NULL,
     address         VARCHAR(255),
     phone           VARCHAR(20),
-    active          BOOLEAN         NOT NULL DEFAULT TRUE,
+    active          BOOLEAN         NOT NULL,
     owner_id        UUID            NOT NULL,
-    created_at      TIMESTAMP       NOT NULL DEFAULT now(),
-    updated_at      TIMESTAMP       NOT NULL DEFAULT now()
+    created_at      TIMESTAMP       NOT NULL,
+    updated_at      TIMESTAMP       NOT NULL
 );
 
 COMMENT ON TABLE administrative.stores IS 'Supérettes — chaque supérette appartient à un propriétaire.';

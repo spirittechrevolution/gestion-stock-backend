@@ -6,7 +6,7 @@
 -- ── Colonne status ──────────────────────────────────────────────────────────
 
 ALTER TABLE administrative.products
-    ADD COLUMN status VARCHAR(20) NOT NULL DEFAULT 'APPROVED';
+    ADD COLUMN status VARCHAR(20) NOT NULL;
 
 COMMENT ON COLUMN administrative.products.status IS 'PENDING = créé à la volée par un employé, APPROVED = validé et visible dans le catalogue global';
 

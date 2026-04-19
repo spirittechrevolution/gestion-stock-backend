@@ -2,14 +2,14 @@
 -- Ajoute la table des sessions de caisse
 
 CREATE TABLE administrative.cash_register_sessions (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    id UUID PRIMARY KEY,
     cash_register_id UUID NOT NULL REFERENCES administrative.cash_registers(id) ON DELETE CASCADE,
     user_id UUID NOT NULL REFERENCES administrative.users(id),
     opened_by_id UUID NOT NULL REFERENCES administrative.users(id),
-    opened_at TIMESTAMP NOT NULL DEFAULT NOW(),
+    opened_at TIMESTAMP NOT,
     closed_at TIMESTAMP,
-    created_at TIMESTAMP NOT NULL DEFAULT NOW(),
-    updated_at TIMESTAMP NOT NULL DEFAULT NOW(),
+    created_at TIMESTAMP NOT,
+    updated_at TIMESTAMP NOT,
     CONSTRAINT uk_cash_register_active_session UNIQUE (cash_register_id) WHERE closed_at IS NULL
 );
 

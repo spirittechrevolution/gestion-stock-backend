@@ -4,15 +4,15 @@
 -- ============================================================================
 
 CREATE TABLE administrative.store_products (
-    id              UUID            PRIMARY KEY DEFAULT gen_random_uuid(),
+    id              UUID            PRIMARY KEY,
     store_id        UUID            NOT NULL,
     product_id      UUID            NOT NULL,
     price           DECIMAL(12,2)   NOT NULL,
-    stock           INTEGER         NOT NULL DEFAULT 0,
-    stock_min       INTEGER         DEFAULT 0,
+    stock           INTEGER         NOT NULL,
+    stock_min       INTEGER,
     active          BOOLEAN         NOT NULL DEFAULT TRUE,
-    created_at      TIMESTAMP       NOT NULL DEFAULT now(),
-    updated_at      TIMESTAMP       NOT NULL DEFAULT now(),
+    created_at      TIMESTAMP       NOT NULL,
+    updated_at      TIMESTAMP       NOT NULL,
 
     CONSTRAINT uk_store_product      UNIQUE (store_id, product_id),
     CONSTRAINT ck_sp_price_positive  CHECK (price > 0),

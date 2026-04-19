@@ -4,12 +4,12 @@
 -- ============================================================================
 
 CREATE TABLE administrative.barcodes (
-    id              UUID            PRIMARY KEY DEFAULT gen_random_uuid(),
+    id              UUID            PRIMARY KEY,
     code            VARCHAR(50)     NOT NULL,
     type            VARCHAR(20)     NOT NULL DEFAULT 'EAN',
     product_id      UUID            NOT NULL,
-    created_at      TIMESTAMP       NOT NULL DEFAULT now(),
-    updated_at      TIMESTAMP       NOT NULL DEFAULT now(),
+    created_at      TIMESTAMP       NOT NULL,
+    updated_at      TIMESTAMP       NOT NULL,
 
     CONSTRAINT uk_barcode_code  UNIQUE (code),
     CONSTRAINT ck_barcode_type  CHECK (type IN ('EAN', 'INTERNAL'))

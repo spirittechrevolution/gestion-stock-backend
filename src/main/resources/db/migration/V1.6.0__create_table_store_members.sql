@@ -4,13 +4,13 @@
 -- ============================================================================
 
 CREATE TABLE administrative.store_members (
-    id              UUID            PRIMARY KEY DEFAULT gen_random_uuid(),
+    id              UUID            PRIMARY KEY,
     store_id        UUID            NOT NULL,
     user_id         UUID            NOT NULL,
     role            VARCHAR(20)     NOT NULL,
-    active          BOOLEAN         NOT NULL DEFAULT TRUE,
-    created_at      TIMESTAMP       NOT NULL DEFAULT now(),
-    updated_at      TIMESTAMP       NOT NULL DEFAULT now(),
+    active          BOOLEAN         NOT NULL,
+    created_at      TIMESTAMP       NOT NULL,
+    updated_at      TIMESTAMP       NOT NULL,
 
     CONSTRAINT uk_store_member UNIQUE (store_id, user_id)
 );
