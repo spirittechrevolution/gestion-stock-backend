@@ -7,8 +7,8 @@ import java.io.InputStream;
  * Contrat du service de stockage objet MinIO.
  *
  * <p>Expose les opérations de base sur les objets stockés dans les buckets MinIO de la plateforme
- * Samba POS. Les buckets déclarés dans {@code application.yml} (propriété {@code minio.buckets}) sont
- * créés automatiquement au démarrage de l'application si absents.
+ * Samba POS. Les buckets déclarés dans {@code application.yml} (propriété {@code minio.buckets})
+ * sont créés automatiquement au démarrage de l'application si absents.
  *
  * <p>Buckets disponibles :
  *

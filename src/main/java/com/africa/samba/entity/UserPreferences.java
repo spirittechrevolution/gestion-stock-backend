@@ -221,5 +221,4 @@ public class UserPreferences extends BaseEntity {
     this.pinAchaqueOuverture = false;
     this.periodeRapportDefaut = "jour";
   }
-
 }

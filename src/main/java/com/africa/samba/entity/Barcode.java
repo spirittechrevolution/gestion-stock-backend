@@ -22,14 +22,15 @@ import lombok.experimental.SuperBuilder;
 /**
  * Code-barres — identifiant unique d'un produit.
  *
- * <p>Chaque code est <strong>UNIQUE</strong> dans tout le système.
- * Un produit peut avoir plusieurs codes-barres (EAN officiel + code interne).
- * Un code-barres pointe vers exactement un seul produit.
+ * <p>Chaque code est <strong>UNIQUE</strong> dans tout le système. Un produit peut avoir plusieurs
+ * codes-barres (EAN officiel + code interne). Un code-barres pointe vers exactement un seul
+ * produit.
  *
  * <p>Types :
+ *
  * <ul>
- *   <li>{@code EAN} — code officiel du fabricant (standard GS1)</li>
- *   <li>{@code INTERNAL} — code généré par Samba (préfixe {@code 2}, 13 chiffres)</li>
+ *   <li>{@code EAN} — code officiel du fabricant (standard GS1)
+ *   <li>{@code INTERNAL} — code généré par Samba (préfixe {@code 2}, 13 chiffres)
  * </ul>
  */
 @Entity

@@ -23,9 +23,9 @@ import lombok.experimental.SuperBuilder;
 /**
  * Store — supérette.
  *
- * <p>Chaque supérette appartient à un propriétaire ({@link User}).
- * Elle choisit ses produits dans le catalogue global ({@link Product})
- * et définit ses propres prix et stocks via {@link StoreProduct}.
+ * <p>Chaque supérette appartient à un propriétaire ({@link User}). Elle choisit ses produits dans
+ * le catalogue global ({@link Product}) et définit ses propres prix et stocks via {@link
+ * StoreProduct}.
  *
  * <p>Un propriétaire peut gérer plusieurs supérettes.
  */
@@ -68,4 +68,9 @@ public class Store extends BaseEntity {
   @OneToMany(mappedBy = "store", cascade = CascadeType.ALL, orphanRemoval = true)
   @Builder.Default
   private List<StoreProduct> storeProducts = new ArrayList<>();
+
+  /** Membres de la supérette (employés et managers affectés) */
+  @OneToMany(mappedBy = "store", cascade = CascadeType.ALL, orphanRemoval = true)
+  @Builder.Default
+  private List<StoreMember> members = new ArrayList<>();
 }

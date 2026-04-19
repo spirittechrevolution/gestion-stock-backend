@@ -4,13 +4,12 @@ import com.africa.samba.codeLists.Role;
 import com.africa.samba.dto.request.CreateAdminRequest;
 import com.africa.samba.repository.UserRepository;
 import com.africa.samba.services.interfaces.AdminManagementService;
+import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.stereotype.Component;
-
-import java.util.Set;
 
 /**
  * Initialise le premier compte Super Administrateur au démarrage de l'application lorsque la base
@@ -22,8 +21,8 @@ import java.util.Set;
  *   <li>Si {@code ubax.bootstrap.enabled = false} (valeur par défaut) → pas d'action.
  *   <li>Si un {@code SUPER_ADMIN} existe déjà en base → pas d'action (idempotent).
  *   <li>Sinon → crée le compte Keycloak, attribue le rôle {@code SUPER_ADMIN}, persiste l'entité
- *       {@link com.africa.samba.entity.User} et envoie un email de définition du mot de
- *       passe à l'adresse configurée.
+ *       {@link com.africa.samba.entity.User} et envoie un email de définition du mot de passe à
+ *       l'adresse configurée.
  * </ol>
  *
  * <p><b>Usage :</b> définir les variables d'environnement (ou surcharger dans {@code

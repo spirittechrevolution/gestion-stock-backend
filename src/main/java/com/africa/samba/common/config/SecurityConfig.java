@@ -1,9 +1,8 @@
 package com.africa.samba.common.config;
 
+import com.africa.samba.common.util.KeycloakJwtRolesConverter;
 import java.util.Arrays;
 import java.util.List;
-
-import com.africa.samba.common.util.KeycloakJwtRolesConverter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;

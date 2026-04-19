@@ -51,10 +51,7 @@ public class StorageController {
 
   /** Buckets accessibles via l'endpoint presign. Les autres sont rejetés (sécurité). */
   private static final Set<String> ALLOWED_BUCKETS =
-      Set.of(
-          "users-avatars",
-          "stores-logos",
-          "products-photos");
+      Set.of("users-avatars", "stores-logos", "products-photos");
 
   /**
    * Génère une URL présignée PUT pour uploader un fichier directement vers MinIO.

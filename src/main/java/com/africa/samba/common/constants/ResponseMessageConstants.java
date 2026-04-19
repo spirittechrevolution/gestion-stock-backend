@@ -56,8 +56,10 @@ public class ResponseMessageConstants {
   public static final String PRODUCT_CREATE_FAILURE_BAD_REQUEST =
       "PRODUCT_CREATE_FAILURE_BAD_REQUEST";
   public static final String PRODUCT_UPDATE_FAILURE = "PRODUCT_UPDATE_FAILURE";
-  public static final String PRODUCT_UPDATE_FAILURE_NOT_FOUND =
-      "PRODUCT_UPDATE_FAILURE_NOT_FOUND";
+  public static final String PRODUCT_UPDATE_FAILURE_NOT_FOUND = "PRODUCT_UPDATE_FAILURE_NOT_FOUND";
+  public static final String PRODUCT_QUICK_CREATE_SUCCESS = "PRODUCT_QUICK_CREATE_SUCCESS";
+  public static final String PRODUCT_QUICK_CREATE_FAILURE = "PRODUCT_QUICK_CREATE_FAILURE";
+  public static final String PRODUCT_APPROVE_SUCCESS = "PRODUCT_APPROVE_SUCCESS";
 
   // ── BARCODE ─────────────────────────────────────────────────────
   public static final String BARCODE_LOOKUP_SUCCESS = "BARCODE_LOOKUP_SUCCESS";
@@ -73,6 +75,7 @@ public class ResponseMessageConstants {
   public static final String STORE_UPDATE_SUCCESS = "STORE_UPDATE_SUCCESS";
   public static final String STORE_DELETE_SUCCESS = "STORE_DELETE_SUCCESS";
   public static final String STORE_GET_FAILURE_NOT_FOUND = "STORE_GET_FAILURE_NOT_FOUND";
+  public static final String STORE_CREATE_FAILURE = "STORE_CREATE_FAILURE";
 
   // ── STORE PRODUCT (catalogue supérette) ─────────────────────────
   public static final String STORE_PRODUCT_ADD_SUCCESS = "STORE_PRODUCT_ADD_SUCCESS";
@@ -82,8 +85,18 @@ public class ResponseMessageConstants {
   public static final String STORE_PRODUCT_SCAN_SUCCESS = "STORE_PRODUCT_SCAN_SUCCESS";
   public static final String STORE_PRODUCT_NOT_FOUND = "STORE_PRODUCT_NOT_FOUND";
   public static final String STORE_PRODUCT_ALREADY_EXISTS = "STORE_PRODUCT_ALREADY_EXISTS";
-  public static final String STORE_PRODUCT_STOCK_INSUFFICIENT =
-      "STORE_PRODUCT_STOCK_INSUFFICIENT";
+  public static final String STORE_PRODUCT_ADD_FAILURE = "STORE_PRODUCT_ADD_FAILURE";
+  public static final String STORE_PRODUCT_STOCK_INSUFFICIENT = "STORE_PRODUCT_STOCK_INSUFFICIENT";
+  public static final String STORE_PRODUCT_LOW_STOCK_SUCCESS = "STORE_PRODUCT_LOW_STOCK_SUCCESS";
+
+  // ── STORE MEMBER (membres supérette) ────────────────────────────
+  public static final String STORE_MEMBER_ADD_SUCCESS = "STORE_MEMBER_ADD_SUCCESS";
+  public static final String STORE_MEMBER_UPDATE_SUCCESS = "STORE_MEMBER_UPDATE_SUCCESS";
+  public static final String STORE_MEMBER_REMOVE_SUCCESS = "STORE_MEMBER_REMOVE_SUCCESS";
+  public static final String STORE_MEMBER_GET_LIST_SUCCESS = "STORE_MEMBER_GET_LIST_SUCCESS";
+  public static final String STORE_MEMBER_NOT_FOUND = "STORE_MEMBER_NOT_FOUND";
+  public static final String STORE_MEMBER_ALREADY_EXISTS = "STORE_MEMBER_ALREADY_EXISTS";
+  public static final String STORE_MEMBER_ADD_FAILURE = "STORE_MEMBER_ADD_FAILURE";
 
   // ── STORAGE ─────────────────────────────────────────────────────
   public static final String STORAGE_PRESIGN_SUCCESS = "STORAGE_PRESIGN_SUCCESS";
@@ -93,6 +106,8 @@ public class ResponseMessageConstants {
 
   // ── CODE LIST ───────────────────────────────────────────────────
   public static final String CODELIST_GET_SUCCESS = "CODELIST_GET_SUCCESS";
+  public static final String CODELIST_PUT_SUCCESS = "CODELIST_PUT_SUCCESS";
+  public static final String CODELIST_POST_SUCCESS = "CODELIST_POST_SUCCESS";
   public static final String CODELIST_GET_LIST_SUCCESS = "CODELIST_GET_LIST_SUCCESS";
   public static final String CODELIST_GET_FAILURE_NOT_FOUND = "CODELIST_GET_FAILURE_NOT_FOUND";
   public static final String CODELIST_GET_FAILURE_BAD_REQUEST = "CODELIST_GET_FAILURE_BAD_REQUEST";

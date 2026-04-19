@@ -40,13 +40,18 @@
 │ name         │   └───│ product_id   │       │ name             │
 │ brand        │       │ code (UNIQUE)│       │ address          │
 │ category     │       │ type         │       │ phone            │
-│              │       │ (EAN/INTERNE)│       │ owner_id         │
-│ ⚠️ PAS DE    │       └──────────────┘       └────────┬─────────┘
-│   PRIX ICI   │                                       │
-└──────┬───────┘                                       │
-       │              ┌───────────────────────┐        │
-       │              │    store_products     │        │
-       └──────────────│───────────────────────│────────┘
+│ status       │       │ (EAN/INTERNE)│       │ owner_id (FK)    │
+│ (APPROVED/   │       └──────────────┘       └────────┬─────────┘
+│  PENDING)    │                                       │
+│ created_by   │                              ┌────────┴─────────┐
+│ _store_id    │                              │  store_members   │
+│              │                              │──────────────────│
+│ ⚠️ PAS DE    │                              │ store_id (FK)    │
+│   PRIX ICI   │                              │ user_id  (FK)    │
+└──────┬───────┘                              │ role (MANAGER/   │
+       │              ┌───────────────────────┐│   EMPLOYEE)      │
+       │              │    store_products     ││ active           │
+       └──────────────│───────────────────────│└──────────────────┘
                       │ store_id (FK)         │
                       │ product_id (FK)       │
                       │ price                 │
@@ -69,6 +74,8 @@ Produits partagés entre toutes les supérettes. **Aucun prix ici.**
 | `category` | VARCHAR | Catégorie du produit |
 | `description` | TEXT | Description (nullable) |
 | `image_url` | VARCHAR | Photo du produit (nullable) |
+| `status` | ENUM | `APPROVED` (validé) ou `PENDING` (en attente) — défaut `APPROVED` |
+| `created_by_store_id` | UUID (FK) | Supérette ayant créé le produit (nullable — renseigné pour les créations rapides) |
 
 ### 2.3 Table `barcodes` — Codes-barres
 
@@ -110,6 +117,22 @@ Chaque supérette choisit ses produits et définit ses propres prix.
 
 **Contrainte :** `UNIQUE(store_id, product_id)` — un produit ne peut apparaître qu'une seule fois par supérette.
 
+### 2.6 Table `store_members` — Employés / Managers
+
+Associe des utilisateurs à une supérette avec un rôle local.
+
+| Champ | Type | Description |
+|-------|------|-------------|
+| `id` | UUID | Identifiant unique |
+| `store_id` | UUID (FK) | Référence vers `stores` |
+| `user_id` | UUID (FK) | Référence vers `users` |
+| `role` | ENUM | `MANAGER` ou `EMPLOYEE` |
+| `active` | BOOLEAN | Membre actif (soft delete) — défaut `true` |
+
+**Contrainte :** `UNIQUE(store_id, user_id)` — un utilisateur ne peut être membre qu'une fois par supérette.
+
+> **Note :** Le propriétaire (`owner_id` dans `stores`) n'a pas besoin d'être dans `store_members`. Il dispose déjà de tous les droits sur ses supérettes.
+
 ---
 
 ## 3. Fonctionnement
@@ -133,14 +156,36 @@ Chaque supérette choisit ses produits et définit ses propres prix.
 3. Si pas de code-barres → générer un code interne (`2000000000001`, `2000000000002`, ...)
 4. Associer le code dans la table `barcodes`
 
-### 3.2 Ajout d'un produit à une supérette
+### 3.2 Création rapide par un employé
+
+Quand un employé ne trouve pas un produit dans le catalogue, il peut le **créer à la volée** :
+
+```
+┌──────────────────────────────────────────────────┐
+│  1. Scan code-barres → produit introuvable       │
+│  2. Créer rapidement :                           │
+│     - nom, catégorie, prix, stock                │
+│  3. Le produit est créé en statut PENDING        │
+│  4. Il est ajouté au catalogue de la supérette   │
+│  5. L'employé peut l'utiliser immédiatement      │
+│  6. Le propriétaire / manager valide plus tard   │
+│     → statut passe à APPROVED                    │
+└──────────────────────────────────────────────────┘
+```
+
+| Statut | Visibilité | Utilisation |
+|--------|-----------|-------------|
+| `PENDING` | Uniquement dans la supérette qui l'a créé | Vente possible immédiatement |
+| `APPROVED` | Catalogue global (toutes les supérettes) | Pleinement utilisable |
+
+### 3.3 Ajout d'un produit à une supérette
 
 1. La supérette consulte le **catalogue global**
 2. Elle clique **"Ajouter à ma supérette"**
 3. Elle saisit son **prix de vente** et son **stock initial**
 4. Le produit est enregistré dans `store_products`
 
-### 3.3 Scan en caisse
+### 3.4 Scan en caisse
 
 ```
 ┌──────────────────────────────────────────────────┐
@@ -153,7 +198,7 @@ Chaque supérette choisit ses produits et définit ses propres prix.
 └──────────────────────────────────────────────────┘
 ```
 
-### 3.4 Gestion des codes-barres
+### 3.5 Gestion des codes-barres
 
 | Type | Source | Format | Exemple |
 |------|--------|--------|---------|
@@ -170,47 +215,79 @@ Les codes internes sont générés automatiquement pour les produits sans code-b
 
 | Méthode | Endpoint | Description |
 |---------|----------|-------------|
-| `GET` | `/api/products` | Lister tous les produits du catalogue |
-| `GET` | `/api/products/{id}` | Détail d'un produit |
-| `POST` | `/api/products` | Créer un produit |
-| `PUT` | `/api/products/{id}` | Modifier un produit |
-| `DELETE` | `/api/products/{id}` | Supprimer un produit |
-| `GET` | `/api/products/search?q=` | Rechercher par nom/marque/catégorie |
+| `GET` | `/v1/products` | Lister tous les produits du catalogue |
+| `GET` | `/v1/products/{id}` | Détail d'un produit |
+| `POST` | `/v1/products` | Créer un produit (admin) |
+| `PUT` | `/v1/products/{id}` | Modifier un produit (admin) |
+| `DELETE` | `/v1/products/{id}` | Supprimer un produit (admin) |
+| `GET` | `/v1/products/search?keyword=` | Rechercher par nom/marque/catégorie |
+| `GET` | `/v1/products/category/{category}` | Lister par catégorie |
+| `POST` | `/v1/products/stores/{storeId}/quick-create` | Création rapide par un employé (PENDING) |
+| `PUT` | `/v1/products/{id}/approve` | Approuver un produit en attente (admin) |
+| `GET` | `/v1/products/stores/{storeId}/pending` | Lister les produits en attente d'une supérette |
 
 ### 4.2 Codes-barres
 
 | Méthode | Endpoint | Description |
 |---------|----------|-------------|
-| `GET` | `/api/barcodes/lookup/{code}` | Trouver un produit par code-barres |
-| `POST` | `/api/barcodes` | Associer un code-barres à un produit |
-| `POST` | `/api/barcodes/generate/{productId}` | Générer un code interne |
-| `GET` | `/api/barcodes/product/{productId}` | Lister les codes d'un produit |
+| `GET` | `/v1/products/barcodes/{code}` | Trouver un produit par code-barres |
+| `POST` | `/v1/products/{productId}/barcodes` | Associer un code-barres à un produit |
 
 ### 4.3 Supérettes
 
 | Méthode | Endpoint | Description |
 |---------|----------|-------------|
-| `GET` | `/api/stores` | Lister les supérettes |
-| `GET` | `/api/stores/{id}` | Détail d'une supérette |
-| `POST` | `/api/stores` | Créer une supérette |
-| `PUT` | `/api/stores/{id}` | Modifier une supérette |
-| `DELETE` | `/api/stores/{id}` | Supprimer une supérette |
+| `GET` | `/v1/stores` | Lister les supérettes |
+| `GET` | `/v1/stores/{id}` | Détail d'une supérette |
+| `POST` | `/v1/stores` | Créer une supérette |
+| `PUT` | `/v1/stores/{id}` | Modifier une supérette |
+| `DELETE` | `/v1/stores/{id}` | Supprimer une supérette |
 
 ### 4.4 Catalogue supérette (store_products)
 
 | Méthode | Endpoint | Description |
 |---------|----------|-------------|
-| `GET` | `/api/stores/{storeId}/products` | Catalogue de la supérette |
-| `POST` | `/api/stores/{storeId}/products` | Ajouter un produit (avec prix) |
-| `PUT` | `/api/stores/{storeId}/products/{productId}` | Modifier prix/stock |
-| `DELETE` | `/api/stores/{storeId}/products/{productId}` | Retirer un produit |
-| `GET` | `/api/stores/{storeId}/scan/{barcode}` | Scan en caisse : prix du magasin |
+| `GET` | `/v1/stores/{storeId}/products` | Catalogue de la supérette |
+| `POST` | `/v1/stores/{storeId}/products` | Ajouter un produit (avec prix) |
+| `PUT` | `/v1/stores/{storeId}/products/{productId}` | Modifier prix/stock |
+| `DELETE` | `/v1/stores/{storeId}/products/{productId}` | Retirer un produit |
+| `GET` | `/v1/stores/{storeId}/products/scan/{barcode}` | Scan en caisse : prix du magasin |
+| `GET` | `/v1/stores/{storeId}/products/low-stock` | Produits en rupture / stock faible |
+
+### 4.5 Membres supérette (store_members)
+
+| Méthode | Endpoint | Description |
+|---------|----------|-------------|
+| `GET` | `/v1/stores/{storeId}/members` | Lister les membres de la supérette |
+| `POST` | `/v1/stores/{storeId}/members` | Ajouter un membre (MANAGER ou EMPLOYEE) |
+| `PUT` | `/v1/stores/{storeId}/members/{memberId}` | Modifier le rôle ou le statut |
+| `DELETE` | `/v1/stores/{storeId}/members/{memberId}` | Retirer un membre (soft delete) |
 
 ---
 
 ## 5. Règles métier
 
-### 5.1 Séparation global / local
+### 5.1 Rôles
+
+Samba distingue deux niveaux de rôles :
+
+**Rôles globaux (plateforme)** — définis dans Keycloak :
+
+| Rôle | Description |
+|------|-------------|
+| `ADMIN` | Administrateur plateforme — accès total |
+| `OWNER` | Propriétaire de supérettes — crée et gère ses magasins |
+
+**Rôles locaux (par supérette)** — définis dans `store_members` :
+
+| Rôle | Description |
+|------|-------------|
+| `MANAGER` | Gérant d'une supérette — approuve les produits, gère les employés |
+| `EMPLOYEE` | Vendeur / caissier — scan, vente, création rapide de produits |
+
+> Le propriétaire (`OWNER`) n'a pas besoin d'être dans `store_members`. Il a automatiquement tous les droits sur ses supérettes via `stores.owner_id`.
+
+### 5.2 Séparation global / local
 
 | Donnée | Scope | Table |
 |--------|-------|-------|
@@ -218,7 +295,7 @@ Les codes internes sont générés automatiquement pour les produits sans code-b
 | Code-barres | **Global** (partagé) | `barcodes` |
 | Prix, stock | **Local** (par supérette) | `store_products` |
 
-### 5.2 Contraintes
+### 5.3 Contraintes
 
 | Règle | Description |
 |-------|-------------|
@@ -227,7 +304,7 @@ Les codes internes sont générés automatiquement pour les produits sans code-b
 | Pas de prix global | Le prix est **toujours** défini par la supérette |
 | Unicité store/product | `UNIQUE(store_id, product_id)` dans `store_products` |
 
-### 5.3 Alertes stock
+### 5.4 Alertes stock
 
 | Niveau | Condition | Action |
 |--------|-----------|--------|

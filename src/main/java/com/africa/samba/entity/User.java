@@ -13,7 +13,6 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.ForeignKey;
 import jakarta.persistence.Index;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
@@ -38,8 +37,8 @@ import lombok.experimental.SuperBuilder;
  * <p>Connexion rapide par code PIN 4 chiffres (haché en BCrypt). Session fermée automatiquement
  * après 15 min d'inactivité. Chaque transaction est horodatée et liée à l'utilisateur connecté.
  *
- * <p>Un propriétaire peut gérer plusieurs supérettes ({@link Store}).
- * Les managers et employés sont rattachés à une supérette spécifique.
+ * <p>Un propriétaire peut gérer plusieurs supérettes ({@link Store}). Les managers et employés sont
+ * rattachés à une supérette spécifique.
  */
 @Entity
 @Table(name = "users", schema = "administrative")

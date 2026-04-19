@@ -23,11 +23,11 @@ import lombok.experimental.SuperBuilder;
 /**
  * StoreProduct — catalogue d'une supérette.
  *
- * <p>Table de liaison entre {@link Store} et {@link Product} qui porte le
- * <strong>prix</strong> et le <strong>stock</strong> propres à chaque supérette.
+ * <p>Table de liaison entre {@link Store} et {@link Product} qui porte le <strong>prix</strong> et
+ * le <strong>stock</strong> propres à chaque supérette.
  *
- * <p>Contrainte : {@code UNIQUE(store_id, product_id)} — un produit ne peut
- * apparaître qu'une seule fois dans le catalogue d'une supérette.
+ * <p>Contrainte : {@code UNIQUE(store_id, product_id)} — un produit ne peut apparaître qu'une seule
+ * fois dans le catalogue d'une supérette.
  */
 @Entity
 @Table(

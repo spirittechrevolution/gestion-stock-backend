@@ -1,9 +1,15 @@
 package com.africa.samba.entity;
 
+import com.africa.samba.codeLists.ProductStatus;
 import com.africa.samba.common.base.BaseEntity;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotBlank;
@@ -21,11 +27,11 @@ import lombok.experimental.SuperBuilder;
  * Produit — catalogue global partagé entre toutes les supérettes.
  *
  * <p>Contient uniquement les informations descriptives du produit (nom, marque, catégorie).
- * <strong>Aucun prix ni stock ici</strong> — ces données sont définies par chaque supérette
- * dans {@link StoreProduct}.
+ * <strong>Aucun prix ni stock ici</strong> — ces données sont définies par chaque supérette dans
+ * {@link StoreProduct}.
  *
- * <p>Un produit peut avoir plusieurs codes-barres ({@link Barcode}) et être référencé
- * par plusieurs supérettes ({@link StoreProduct}).
+ * <p>Un produit peut avoir plusieurs codes-barres ({@link Barcode}) et être référencé par plusieurs
+ * supérettes ({@link StoreProduct}).
  */
 @Entity
 @Table(name = "products", schema = "administrative")
@@ -68,6 +74,23 @@ public class Product extends BaseEntity {
   @Column(nullable = false)
   @Builder.Default
   private Boolean active = true;
+
+  /**
+   * Statut du produit. PENDING = créé à la volée par un employé, en attente de validation. APPROVED
+   * = validé, visible dans le catalogue global.
+   */
+  @Enumerated(EnumType.STRING)
+  @Column(nullable = false, length = 20)
+  @Builder.Default
+  private ProductStatus status = ProductStatus.APPROVED;
+
+  /**
+   * Supérette d'origine quand le produit a été créé à la volée par un employé. Null pour les
+   * produits créés par un ADMIN/OWNER directement dans le catalogue.
+   */
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "created_by_store_id")
+  private Store createdByStore;
 
   // ── Relations ─────────────────────────────────────────────────────────
 
