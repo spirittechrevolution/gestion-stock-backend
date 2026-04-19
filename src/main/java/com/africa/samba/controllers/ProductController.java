@@ -29,7 +29,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -62,7 +61,7 @@ public class ProductController {
         responseCode = "201",
         description = "Produit créé",
         content = @Content(
-            mediaType = MediaType.APPLICATION_JSON_VALUE,
+            mediaType = org.springframework.http.MediaType.APPLICATION_JSON_VALUE,
             schema = @Schema(implementation = ProductResponse.class)
         )
     ),
@@ -133,7 +132,7 @@ public class ProductController {
         responseCode = "200",
         description = "Liste des produits",
         content = @Content(
-            mediaType = MediaType.APPLICATION_JSON_VALUE,
+            mediaType = org.springframework.http.MediaType.APPLICATION_JSON_VALUE,
             schema = @Schema(implementation = ProductResponse.class)
         )
     ),
@@ -174,7 +173,7 @@ public class ProductController {
         responseCode = "200",
         description = "Résultats de recherche",
         content = @Content(
-            mediaType = MediaType.APPLICATION_JSON_VALUE,
+            mediaType = org.springframework.http.MediaType.APPLICATION_JSON_VALUE,
             schema = @Schema(implementation = ProductResponse.class)
         )
     ),
@@ -213,7 +212,7 @@ public class ProductController {
         responseCode = "200",
         description = "Produits de la catégorie",
         content = @Content(
-            mediaType = MediaType.APPLICATION_JSON_VALUE,
+            mediaType = org.springframework.http.MediaType.APPLICATION_JSON_VALUE,
             schema = @Schema(implementation = ProductResponse.class)
         )
     ),
@@ -252,7 +251,7 @@ public class ProductController {
         responseCode = "200",
         description = "Produit mis à jour",
         content = @Content(
-            mediaType = MediaType.APPLICATION_JSON_VALUE,
+            mediaType = org.springframework.http.MediaType.APPLICATION_JSON_VALUE,
             schema = @Schema(implementation = ProductResponse.class)
         )
     ),
@@ -290,7 +289,7 @@ public class ProductController {
         responseCode = "200",
         description = "Produit désactivé",
         content = @Content(
-            mediaType = MediaType.APPLICATION_JSON_VALUE,
+            mediaType = org.springframework.http.MediaType.APPLICATION_JSON_VALUE,
             schema = @Schema(implementation = ProductResponse.class)
         )
     ),
@@ -324,7 +323,7 @@ public class ProductController {
         responseCode = "201",
         description = "Code-barres ajouté",
         content = @Content(
-            mediaType = MediaType.APPLICATION_JSON_VALUE,
+            mediaType = org.springframework.http.MediaType.APPLICATION_JSON_VALUE,
             schema = @Schema(implementation = ProductResponse.class)
         )
     ),
@@ -363,7 +362,7 @@ public class ProductController {
         responseCode = "201",
         description = "Code-barres interne généré",
         content = @Content(
-            mediaType = MediaType.APPLICATION_JSON_VALUE,
+            mediaType = org.springframework.http.MediaType.APPLICATION_JSON_VALUE,
             schema = @Schema(implementation = ProductResponse.class)
         )
     ),
@@ -398,7 +397,7 @@ public class ProductController {
         responseCode = "200",
         description = "Code-barres trouvé",
         content = @Content(
-            mediaType = MediaType.APPLICATION_JSON_VALUE,
+            mediaType = org.springframework.http.MediaType.APPLICATION_JSON_VALUE,
             schema = @Schema(implementation = ProductResponse.BarcodeResponse.class)
         )
     ),
@@ -432,7 +431,7 @@ public class ProductController {
         responseCode = "201",
         description = "Produit créé (en attente de validation)",
         content = @Content(
-            mediaType = MediaType.APPLICATION_JSON_VALUE,
+            mediaType = org.springframework.http.MediaType.APPLICATION_JSON_VALUE,
             schema = @Schema(implementation = ProductResponse.class)
         )
     ),
@@ -470,7 +469,7 @@ public class ProductController {
         responseCode = "200",
         description = "Produit approuvé",
         content = @Content(
-            mediaType = MediaType.APPLICATION_JSON_VALUE,
+            mediaType = org.springframework.http.MediaType.APPLICATION_JSON_VALUE,
             schema = @Schema(implementation = ProductResponse.class)
         )
     ),
@@ -504,7 +503,7 @@ public class ProductController {
         responseCode = "200",
         description = "Produits en attente",
         content = @Content(
-            mediaType = MediaType.APPLICATION_JSON_VALUE,
+            mediaType = org.springframework.http.MediaType.APPLICATION_JSON_VALUE,
             schema = @Schema(implementation = ProductResponse.class)
         )
     ),
