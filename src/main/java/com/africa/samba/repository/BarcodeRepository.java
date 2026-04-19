@@ -14,7 +14,7 @@ public interface BarcodeRepository extends JpaRepository<Barcode, UUID> {
 
   boolean existsByCode(String code);
 
-  java.util.List<Barcode> findByProductId(UUID productId);
+  List<Barcode> findByProductId(UUID productId);
 
   /**
    * Retourne le code interne le plus élevé (préfixe '2', 13 chiffres). Permet de calculer le
