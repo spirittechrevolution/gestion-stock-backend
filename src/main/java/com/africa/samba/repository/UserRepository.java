@@ -16,16 +16,6 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface UserRepository extends JpaRepository<User, UUID> {
 
-  Optional<User> findByEmailAndActifTrue(String email);
-
-  List<User> findByBoutiqueIdAndActifTrue(UUID boutiqueId);
-
-  List<User> findByBoutiqueIdAndRoleAndActifTrue(UUID boutiqueId, Role role);
-
-  boolean existsByNomAndBoutiqueId(String nom, UUID boutiqueId);
-
-  boolean existsByEmailAndBoutiqueId(String email, UUID boutiqueId);
-
   Optional<User> findByEmail(String email);
 
   Optional<User> findByPhone(String phone);
@@ -39,16 +29,6 @@ public interface UserRepository extends JpaRepository<User, UUID> {
   @Query("SELECT DISTINCT u FROM User u JOIN u.roles r WHERE r IN :roles")
   List<User> findAdminUsers(@Param("roles") Set<Role> roles);
 
-  /** Compte le nombre de vendeurs actifs pour une boutique */
-  @Query(
-      """
-        SELECT COUNT(u) FROM User u
-        WHERE u.boutique.id = :boutiqueId
-          AND u.active = true
-          AND u.roles = 'VENDEUR'
-    """)
-  UUID countVendeursActifs(@Param("boutiqueId") UUID boutiqueId);
-
   /** Mise à jour de la date de dernière connexion */
   @Modifying
   @Query("UPDATE User u SET u.lastLoginAt = :date WHERE u.id = :id")
@@ -58,13 +38,4 @@ public interface UserRepository extends JpaRepository<User, UUID> {
   @Modifying
   @Query("UPDATE User u SET u.tokenSession = NULL WHERE u.id = :id")
   void clearTokenSession(@Param("id") UUID id);
-
-  /** Tous les Users d'une boutique (actifs + inactifs) — pour le gérant */
-  @Query(
-      """
-        SELECT u FROM User u
-        WHERE u.boutique.id = :boutiqueId
-        ORDER BY u.roles ASC, u.lastName ASC
-    """)
-  List<User> findAllByBoutiqueId(@Param("boutiqueId") UUID boutiqueId);
 }

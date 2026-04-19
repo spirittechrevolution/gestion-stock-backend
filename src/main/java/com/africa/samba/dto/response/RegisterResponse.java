@@ -21,7 +21,5 @@ public class RegisterResponse {
   private Set<Role> roles;
   private String country;
   private String language;
-  private UUID boutiqueId;
-  private String boutiqueNom;
   private LocalDateTime createdAt;
 }

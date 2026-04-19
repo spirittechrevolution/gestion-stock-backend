@@ -222,14 +222,4 @@ public class UserPreferences extends BaseEntity {
     this.periodeRapportDefaut = "jour";
   }
 
-  /**
-   * Crée des préférences par défaut liées à un utilisateur. Appelé dans le service lors de la
-   * création d'un utilisateur.
-   */
-  public static UserPreferences defautPour(User utilisateur) {
-    return UserPreferences.builder()
-        .utilisateur(utilisateur)
-        .devise(utilisateur.getBoutique() != null ? utilisateur.getBoutique().getDevise() : "FCFA")
-        .build();
-  }
 }

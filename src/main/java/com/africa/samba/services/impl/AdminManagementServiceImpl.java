@@ -31,7 +31,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Slf4j
 public class AdminManagementServiceImpl implements AdminManagementService {
 
-  private static final Set<Role> ADMIN_ROLES = Set.of(Role.ADMIN_SAMBA, Role.SUPER_ADMIN_SAMBA);
+  private static final Set<Role> ADMIN_ROLES = Set.of(Role.ADMIN);
 
   private final UserRepository userRepo;
   private final KeycloakAdminService keycloakAdminService;

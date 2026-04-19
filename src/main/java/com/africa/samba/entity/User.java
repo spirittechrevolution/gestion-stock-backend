@@ -33,13 +33,13 @@ import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 
 /**
- * Utilisateur Samba POS.
+ * Utilisateur Samba.
  *
  * <p>Connexion rapide par code PIN 4 chiffres (haché en BCrypt). Session fermée automatiquement
  * après 15 min d'inactivité. Chaque transaction est horodatée et liée à l'utilisateur connecté.
  *
- * <p>Le champ email est optionnel (uniquement pour les propriétaires/gérants qui veulent recevoir
- * des rapports par email).
+ * <p>Un propriétaire peut gérer plusieurs supérettes ({@link Store}).
+ * Les managers et employés sont rattachés à une supérette spécifique.
  */
 @Entity
 @Table(name = "users", schema = "administrative")
@@ -177,7 +177,7 @@ public class User extends BaseEntity {
   @Enumerated(EnumType.STRING)
   @Column(name = "role", nullable = false, length = 30)
   @Builder.Default
-  private Set<Role> roles = new HashSet<>(Set.of(Role.VENDEUR));
+  private Set<Role> roles = new HashSet<>(Set.of(Role.EMPLOYEE));
 
   /**
    * {@code false} si le compte a été suspendu par un administrateur. Un compte inactif est refusé
@@ -188,39 +188,14 @@ public class User extends BaseEntity {
   @Builder.Default
   private boolean active = true;
 
-  // ── Relation boutique ─────────────────────────────────────────────────
+  // ── Supérettes gérées ─────────────────────────────────────────────────
 
-  @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "boutique_id", nullable = false)
-  private Boutique boutique;
-
-  // ── Ventes effectuées ─────────────────────────────────────────────────
-
-  @OneToMany(mappedBy = "vendeur")
+  /** Supérettes dont cet utilisateur est propriétaire */
+  @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL)
   @Builder.Default
-  private List<Vente> ventes = new ArrayList<>();
+  private List<Store> stores = new ArrayList<>();
 
   // ── Méthodes métier ───────────────────────────────────────────────────
-
-  /* public boolean peutEffectuerAction(String action) {
-    return switch (action) {
-      case "VENDRE"              -> role.isPeutVendre();
-      case "REMISE"              -> role.isPeutAppliquerRemise();
-      case "MODIFIER_PRIX"       -> role.isPeutModifierPrix();
-      case "ANNULER_VENTE"       -> role.isPeutAnnulerVente();
-      case "GERER_PRODUITS"      -> role.isPeutGererProduits();
-      case "VOIR_RAPPORTS"       -> role.isPeutVoirTousRapports();
-      case "GERER_UTILISATEURS"  -> role.isPeutGererUtilisateurs();
-      default                    -> false;
-    };
-  }
-
-  */
-  /** Spring Security authority string */
-  /*
-  public String getAuthority() {
-    return role.getAuthority();
-  }*/
 
   /**
    * Nom complet affiché dans l'interface et les documents générés. Exemple : {@code "Mohamed Ba"}.

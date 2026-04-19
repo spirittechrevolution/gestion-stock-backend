@@ -27,10 +27,9 @@ public record UserResponse(
     // ── Avatar ───────────────────────────────────────────────────
     String avatarUrl,
 
-    // ── Rôles & boutique ──────────────────────────────────────────
+    // ── Rôles & supérettes ──────────────────────────────────────────
     Set<Role> roles,
-    UUID boutiqueId,
-    String boutiqueNom,
+    java.util.List<UUID> storeIds,
 
     // ── Vérifications ────────────────────────────────────────────
     boolean emailVerified,

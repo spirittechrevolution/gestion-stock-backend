@@ -43,7 +43,7 @@ public interface KeycloakAdminService {
   /**
    * Attribue un rôle realm Keycloak à un utilisateur.
    *
-   * <p>Le rôle est préfixé {@code SAMBA_} (ex : {@code SAMBA_VENDEUR}, {@code SAMBA_ADMIN}) et doit
+   * <p>Le rôle est préfixé {@code SAMBA_} (ex : {@code SAMBA_OWNER}, {@code SAMBA_ADMIN}) et doit
    * être préalablement défini dans le realm.
    *
    * @param keycloakId identifiant Keycloak de l'utilisateur

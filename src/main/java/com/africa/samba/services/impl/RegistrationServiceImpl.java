@@ -121,7 +121,7 @@ public class RegistrationServiceImpl implements RegistrationService {
     log.info("Utilisateur créé dans Keycloak: {}", keycloakId);
 
     try {
-      keycloakAdminService.assignRole(keycloakId, Role.PROPRIETAIRE);
+      keycloakAdminService.assignRole(keycloakId, Role.OWNER);
 
       User.UserBuilder<?, ?> userBuilder =
           User.builder()
@@ -129,7 +129,7 @@ public class RegistrationServiceImpl implements RegistrationService {
               .firstName(request.getFirstName())
               .lastName(request.getLastName())
               .phone(request.getPhone())
-              .roles(new HashSet<>(Set.of(Role.PROPRIETAIRE)))
+              .roles(new HashSet<>(Set.of(Role.OWNER)))
               .phoneVerified(true)
               .emailVerified(false);
       if (request.getEmail() != null && !request.getEmail().isBlank()) {

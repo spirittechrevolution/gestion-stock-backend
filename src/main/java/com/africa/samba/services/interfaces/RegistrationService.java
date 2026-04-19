@@ -53,7 +53,7 @@ public interface RegistrationService {
    *
    * <ol>
    *   <li>Création du compte dans Keycloak (username = numéro de téléphone).
-   *   <li>Attribution du rôle {@code SAMBA_VENDEUR} dans Keycloak.
+   *   <li>Attribution du rôle {@code SAMBA_OWNER} dans Keycloak.
    *   <li>Persistance de l'utilisateur dans PostgreSQL ({@code administrative.users}).
    *   <li>Envoi de l'email de bienvenue si un email a été fourni.
    * </ol>

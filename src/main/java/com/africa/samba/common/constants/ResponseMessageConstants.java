@@ -45,66 +45,55 @@ public class ResponseMessageConstants {
   public static final String USER_UPDATE_FAILURE = "USER_UPDATE_FAILURE";
   public static final String USER_DELETE_FAILURE = "USER_DELETE_FAILURE";
 
-  // ── PRODUIT ─────────────────────────────────────────────────────
-  public static final String PRODUIT_GET_SUCCESS = "PRODUIT_GET_SUCCESS";
-  public static final String PRODUIT_GET_LIST_SUCCESS = "PRODUIT_GET_LIST_SUCCESS";
-  public static final String PRODUIT_CREATE_SUCCESS = "PRODUIT_CREATE_SUCCESS";
-  public static final String PRODUIT_UPDATE_SUCCESS = "PRODUIT_UPDATE_SUCCESS";
-  public static final String PRODUIT_DELETE_SUCCESS = "PRODUIT_DELETE_SUCCESS";
-  public static final String PRODUIT_GET_FAILURE_NOT_FOUND = "PRODUIT_GET_FAILURE_NOT_FOUND";
-  public static final String PRODUIT_CREATE_FAILURE = "PRODUIT_CREATE_FAILURE";
-  public static final String PRODUIT_CREATE_FAILURE_BAD_REQUEST =
-      "PRODUIT_CREATE_FAILURE_BAD_REQUEST";
-  public static final String PRODUIT_UPDATE_FAILURE = "PRODUIT_UPDATE_FAILURE";
-  public static final String PRODUIT_UPDATE_FAILURE_NOT_FOUND =
-      "PRODUIT_UPDATE_FAILURE_NOT_FOUND";
+  // ── PRODUCT (catalogue global) ────────────────────────────────
+  public static final String PRODUCT_GET_SUCCESS = "PRODUCT_GET_SUCCESS";
+  public static final String PRODUCT_GET_LIST_SUCCESS = "PRODUCT_GET_LIST_SUCCESS";
+  public static final String PRODUCT_CREATE_SUCCESS = "PRODUCT_CREATE_SUCCESS";
+  public static final String PRODUCT_UPDATE_SUCCESS = "PRODUCT_UPDATE_SUCCESS";
+  public static final String PRODUCT_DELETE_SUCCESS = "PRODUCT_DELETE_SUCCESS";
+  public static final String PRODUCT_GET_FAILURE_NOT_FOUND = "PRODUCT_GET_FAILURE_NOT_FOUND";
+  public static final String PRODUCT_CREATE_FAILURE = "PRODUCT_CREATE_FAILURE";
+  public static final String PRODUCT_CREATE_FAILURE_BAD_REQUEST =
+      "PRODUCT_CREATE_FAILURE_BAD_REQUEST";
+  public static final String PRODUCT_UPDATE_FAILURE = "PRODUCT_UPDATE_FAILURE";
+  public static final String PRODUCT_UPDATE_FAILURE_NOT_FOUND =
+      "PRODUCT_UPDATE_FAILURE_NOT_FOUND";
 
-  // ── VENTE ───────────────────────────────────────────────────────
-  public static final String VENTE_GET_SUCCESS = "VENTE_GET_SUCCESS";
-  public static final String VENTE_GET_LIST_SUCCESS = "VENTE_GET_LIST_SUCCESS";
-  public static final String VENTE_CREATE_SUCCESS = "VENTE_CREATE_SUCCESS";
-  public static final String VENTE_CREATE_FAILURE = "VENTE_CREATE_FAILURE";
-  public static final String VENTE_CREATE_FAILURE_BAD_REQUEST =
-      "VENTE_CREATE_FAILURE_BAD_REQUEST";
-  public static final String VENTE_GET_FAILURE_NOT_FOUND = "VENTE_GET_FAILURE_NOT_FOUND";
-  public static final String VENTE_ANNULEE_SUCCESS = "VENTE_ANNULEE_SUCCESS";
+  // ── BARCODE ─────────────────────────────────────────────────────
+  public static final String BARCODE_LOOKUP_SUCCESS = "BARCODE_LOOKUP_SUCCESS";
+  public static final String BARCODE_CREATE_SUCCESS = "BARCODE_CREATE_SUCCESS";
+  public static final String BARCODE_GENERATE_SUCCESS = "BARCODE_GENERATE_SUCCESS";
+  public static final String BARCODE_NOT_FOUND = "BARCODE_NOT_FOUND";
+  public static final String BARCODE_ALREADY_EXISTS = "BARCODE_ALREADY_EXISTS";
 
-  // ── STOCK ───────────────────────────────────────────────────────
-  public static final String STOCK_MOUVEMENT_SUCCESS = "STOCK_MOUVEMENT_SUCCESS";
-  public static final String STOCK_MOUVEMENT_FAILURE = "STOCK_MOUVEMENT_FAILURE";
-  public static final String STOCK_ALERTE_LIST_SUCCESS = "STOCK_ALERTE_LIST_SUCCESS";
+  // ── STORE (supérette) ───────────────────────────────────────────
+  public static final String STORE_GET_SUCCESS = "STORE_GET_SUCCESS";
+  public static final String STORE_GET_LIST_SUCCESS = "STORE_GET_LIST_SUCCESS";
+  public static final String STORE_CREATE_SUCCESS = "STORE_CREATE_SUCCESS";
+  public static final String STORE_UPDATE_SUCCESS = "STORE_UPDATE_SUCCESS";
+  public static final String STORE_DELETE_SUCCESS = "STORE_DELETE_SUCCESS";
+  public static final String STORE_GET_FAILURE_NOT_FOUND = "STORE_GET_FAILURE_NOT_FOUND";
 
-  // ── BOUTIQUE ────────────────────────────────────────────────────
-  public static final String BOUTIQUE_GET_SUCCESS = "BOUTIQUE_GET_SUCCESS";
-  public static final String BOUTIQUE_GET_LIST_SUCCESS = "BOUTIQUE_GET_LIST_SUCCESS";
-  public static final String BOUTIQUE_CREATE_SUCCESS = "BOUTIQUE_CREATE_SUCCESS";
-  public static final String BOUTIQUE_UPDATE_SUCCESS = "BOUTIQUE_UPDATE_SUCCESS";
-  public static final String BOUTIQUE_GET_FAILURE_NOT_FOUND = "BOUTIQUE_GET_FAILURE_NOT_FOUND";
-
-  // ── CATEGORIE ───────────────────────────────────────────────────
-  public static final String CATEGORIE_GET_SUCCESS = "CATEGORIE_GET_SUCCESS";
-  public static final String CATEGORIE_GET_LIST_SUCCESS = "CATEGORIE_GET_LIST_SUCCESS";
-  public static final String CATEGORIE_CREATE_SUCCESS = "CATEGORIE_CREATE_SUCCESS";
-  public static final String CATEGORIE_UPDATE_SUCCESS = "CATEGORIE_UPDATE_SUCCESS";
-  public static final String CATEGORIE_GET_FAILURE_NOT_FOUND = "CATEGORIE_GET_FAILURE_NOT_FOUND";
-
-  // ── QR CODE ─────────────────────────────────────────────────────
-  public static final String QRCODE_GENERATE_SUCCESS = "QRCODE_GENERATE_SUCCESS";
-  public static final String QRCODE_GENERATE_FAILURE = "QRCODE_GENERATE_FAILURE";
-
-  // ── SYNC ────────────────────────────────────────────────────────
-  public static final String SYNC_SUCCESS = "SYNC_SUCCESS";
-  public static final String SYNC_FAILURE = "SYNC_FAILURE";
+  // ── STORE PRODUCT (catalogue supérette) ─────────────────────────
+  public static final String STORE_PRODUCT_ADD_SUCCESS = "STORE_PRODUCT_ADD_SUCCESS";
+  public static final String STORE_PRODUCT_UPDATE_SUCCESS = "STORE_PRODUCT_UPDATE_SUCCESS";
+  public static final String STORE_PRODUCT_REMOVE_SUCCESS = "STORE_PRODUCT_REMOVE_SUCCESS";
+  public static final String STORE_PRODUCT_GET_LIST_SUCCESS = "STORE_PRODUCT_GET_LIST_SUCCESS";
+  public static final String STORE_PRODUCT_SCAN_SUCCESS = "STORE_PRODUCT_SCAN_SUCCESS";
+  public static final String STORE_PRODUCT_NOT_FOUND = "STORE_PRODUCT_NOT_FOUND";
+  public static final String STORE_PRODUCT_ALREADY_EXISTS = "STORE_PRODUCT_ALREADY_EXISTS";
+  public static final String STORE_PRODUCT_STOCK_INSUFFICIENT =
+      "STORE_PRODUCT_STOCK_INSUFFICIENT";
 
   // ── STORAGE ─────────────────────────────────────────────────────
-  public static final String STORAGE_UPLOAD_SUCCESS = "STORAGE_UPLOAD_SUCCESS";
-  public static final String STORAGE_UPLOAD_FAILURE = "STORAGE_UPLOAD_FAILURE";
-  public static final String STORAGE_DELETE_SUCCESS = "STORAGE_DELETE_SUCCESS";
+  public static final String STORAGE_PRESIGN_SUCCESS = "STORAGE_PRESIGN_SUCCESS";
+  public static final String STORAGE_PRESIGN_FAILURE = "STORAGE_PRESIGN_FAILURE";
+  public static final String STORAGE_PRESIGN_FAILURE_BUCKET_NOT_ALLOWED =
+      "STORAGE_PRESIGN_FAILURE_BUCKET_NOT_ALLOWED";
 
   // ── CODE LIST ───────────────────────────────────────────────────
   public static final String CODELIST_GET_SUCCESS = "CODELIST_GET_SUCCESS";
-  public static final String CODELIST_POST_SUCCESS = "CODELIST_POST_SUCCESS";
-  public static final String CODELIST_PUT_SUCCESS = "CODELIST_PUT_SUCCESS";
+  public static final String CODELIST_GET_LIST_SUCCESS = "CODELIST_GET_LIST_SUCCESS";
   public static final String CODELIST_GET_FAILURE_NOT_FOUND = "CODELIST_GET_FAILURE_NOT_FOUND";
   public static final String CODELIST_GET_FAILURE_BAD_REQUEST = "CODELIST_GET_FAILURE_BAD_REQUEST";
   public static final String CODELIST_POST_FAILURE = "CODELIST_POST_FAILURE";

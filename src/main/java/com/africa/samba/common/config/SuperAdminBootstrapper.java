@@ -56,7 +56,7 @@ public class SuperAdminBootstrapper implements ApplicationRunner {
       return;
     }
 
-    long existingCount = userRepository.findAdminUsers(Set.of(Role.SUPER_ADMIN_SAMBA)).size();
+    long existingCount = userRepository.findAdminUsers(Set.of(Role.ADMIN)).size();
     if (existingCount > 0) {
       log.info(
           "[Bootstrap] {} SUPER_ADMIN détecté(s) en base — initialisation ignorée.", existingCount);
@@ -73,7 +73,7 @@ public class SuperAdminBootstrapper implements ApplicationRunner {
       request.setFirstName(props.getFirstName());
       request.setLastName(props.getLastName());
       request.setPhone(props.getPhone());
-      request.setRole(Role.SUPER_ADMIN_SAMBA);
+      request.setRole(Role.ADMIN);
 
       adminManagementService.createAdmin(request);
 

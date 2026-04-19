@@ -53,7 +53,7 @@ public class StorageController {
   private static final Set<String> ALLOWED_BUCKETS =
       Set.of(
           "users-avatars",
-          "boutiques-logos",
+          "stores-logos",
           "products-photos");
 
   /**

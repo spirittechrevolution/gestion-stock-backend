@@ -80,8 +80,7 @@ public class LaCodeListController {
       summary = "Liste des valeurs par type",
       description =
           "Retourne toutes les entrées d'un type donné. Utiliser les constantes de type : "
-              + "TYPE_VENTE, MODE_PAIEMENT, STATUT_VENTE, TYPE_MOUVEMENT, "
-              + "NIVEAU_ALERTE, STATUT_BOUTIQUE, SUBSCRIPTION_PLAN, TYPE_QRCODE.",
+              + "BARCODE_TYPE, NIVEAU_ALERTE, ROLE.",
       tags = {"CodeList"})
   @ApiResponse(
       responseCode = "200",

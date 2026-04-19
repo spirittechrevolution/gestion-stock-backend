@@ -12,11 +12,13 @@ import java.util.List;
 public final class RoleGuard {
 
   private static final String ROLE_PREFIX = "SAMBA_";
+  private static final String ADMIN = "ADMIN";
+  private static final String OWNER = "OWNER";
 
   private RoleGuard() {}
 
   /**
-   * Vérifie que l'utilisateur a le rôle ADMIN_SAMBA.
+   * Vérifie que l'utilisateur a le rôle ADMIN ou OWNER.
    *
    * @param parser extracteur de rôles JWT
    * @param request requête HTTP
@@ -25,10 +27,10 @@ public final class RoleGuard {
   public static void requireAdmin(
       RequestHeaderParser parser, jakarta.servlet.http.HttpServletRequest request) {
     List<String> roles = parser.extractRoles(request);
-    if (!roles.contains(ROLE_PREFIX + "ADMIN_SAMBA")
-        && !roles.contains("ADMIN_SAMBA")
-        && !roles.contains(ROLE_PREFIX + "PROPRIETAIRE")
-        && !roles.contains("PROPRIETAIRE")) {
+    if (!roles.contains(ROLE_PREFIX + ADMIN)
+        && !roles.contains(ADMIN)
+        && !roles.contains(ROLE_PREFIX + OWNER)
+        && !roles.contains(OWNER)) {
       throw new UnAuthorizedException("Accès refusé – rôle ADMIN requis");
     }
   }
@@ -43,8 +45,8 @@ public final class RoleGuard {
   public static void requireSuperAdmin(
       RequestHeaderParser parser, jakarta.servlet.http.HttpServletRequest request) {
     List<String> roles = parser.extractRoles(request);
-    if (!roles.contains(ROLE_PREFIX + "ADMIN_SAMBA") && !roles.contains("ADMIN_SAMBA")) {
-      throw new UnAuthorizedException("Accès refusé – rôle SUPER_ADMIN requis");
+    if (!roles.contains(ROLE_PREFIX + ADMIN) && !roles.contains(ADMIN)) {
+      throw new UnAuthorizedException("Accès refusé – rôle ADMIN requis");
     }
   }
 
