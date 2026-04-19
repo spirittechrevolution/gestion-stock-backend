@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(grep \"\\\\.java$\")",
+      "Bash(awk '{print $NF}')"
+    ]
+  }
+}
