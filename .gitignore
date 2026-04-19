@@ -41,3 +41,4 @@ target/classes/application-local.yml
 ### Logs ###
 *.log
 logs/
+.github/workflows/
