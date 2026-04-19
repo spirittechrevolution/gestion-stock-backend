@@ -52,6 +52,13 @@ public interface AdminManagementService {
    * @return liste des administrateurs
    */
   List<AdminUserResponse> listAdmins();
+
+  /**
+   * Retourne la liste paginée des administrateurs actifs de la plateforme.
+   *
+   * @param pageable paramètres de pagination et de tri
+   * @return page d'administrateurs
+   */
   Page<AdminUserResponse> listAdmins(Pageable pageable);
 
   /**
