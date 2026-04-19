@@ -18,6 +18,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 /**
  * Implémentation du service de gestion des administrateurs internes Samba.
@@ -101,6 +103,12 @@ public class AdminManagementServiceImpl implements AdminManagementService {
         .filter(u -> !u.isDeleted())
         .map(this::toResponse)
         .toList();
+  }
+
+  @Override
+  public Page<AdminUserResponse> listAdmins(Pageable pageable) {
+    return userRepo.findAdminUsers(ADMIN_ROLES, pageable)
+        .map(this::toResponse);
   }
 
   @Override

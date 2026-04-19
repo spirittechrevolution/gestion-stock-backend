@@ -13,6 +13,8 @@ import com.africa.samba.dto.request.UpdateProductRequest;
 import com.africa.samba.dto.response.ProductResponse;
 import com.africa.samba.services.interfaces.ProductService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -27,6 +29,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -50,13 +53,23 @@ public class ProductController {
 
   // ── Créer un produit ──────────────────────────────────────────
 
-  @Operation(summary = "Créer un produit dans le catalogue global")
-  @SecurityRequirement(name = "bearerAuth")
+  @Operation(
+      summary = "Créer un produit dans le catalogue global",
+      description = "Rôle requis : ADMIN. Seuls les administrateurs peuvent créer un produit dans le catalogue global.",
+      security = @SecurityRequirement(name = "bearerAuth"))
   @ApiResponses({
-    @ApiResponse(responseCode = "201", description = "Produit créé"),
+    @ApiResponse(
+        responseCode = "201",
+        description = "Produit créé",
+        content = @Content(
+            mediaType = MediaType.APPLICATION_JSON_VALUE,
+            schema = @Schema(implementation = ProductResponse.class)
+        )
+    ),
     @ApiResponse(responseCode = "400", description = "Données invalides"),
     @ApiResponse(responseCode = "401", description = "Token absent ou invalide"),
-    @ApiResponse(responseCode = "403", description = "Accès refusé")
+    @ApiResponse(responseCode = "403", description = "Accès refusé"),
+    @ApiResponse(responseCode = "409", description = "Produit déjà existant")
   })
   @PostMapping
   public ResponseEntity<CustomResponse> create(
@@ -77,11 +90,22 @@ public class ProductController {
 
   // ── Obtenir un produit par ID ─────────────────────────────────
 
-  @Operation(summary = "Obtenir un produit par son identifiant")
+  @Operation(
+      summary = "Obtenir un produit par son identifiant",
+      description = "Rôle requis : Authentifié (ADMIN, OWNER, EMPLOYEE, etc.). Toute personne connectée peut consulter un produit.")
   @SecurityRequirement(name = "bearerAuth")
   @ApiResponses({
-    @ApiResponse(responseCode = "200", description = "Produit trouvé"),
-    @ApiResponse(responseCode = "404", description = "Produit introuvable")
+    @ApiResponse(
+        responseCode = "200",
+        description = "Produit trouvé",
+        content = @Content(
+            mediaType = MediaType.APPLICATION_JSON_VALUE,
+            schema = @Schema(implementation = ProductResponse.class)
+        )
+    ),
+    @ApiResponse(responseCode = "404", description = "Produit introuvable"),
+    @ApiResponse(responseCode = "401", description = "Token absent ou invalide"),
+    @ApiResponse(responseCode = "403", description = "Accès refusé")
   })
   @GetMapping("/{id}")
   public ResponseEntity<CustomResponse> getById(
@@ -100,9 +124,22 @@ public class ProductController {
 
   // ── Lister les produits (paginé) ──────────────────────────────
 
-  @Operation(summary = "Lister les produits actifs avec pagination")
+  @Operation(
+      summary = "Lister les produits actifs avec pagination",
+      description = "Rôle requis : Authentifié (ADMIN, OWNER, EMPLOYEE, etc.). Toute personne connectée peut lister les produits.")
   @SecurityRequirement(name = "bearerAuth")
-  @ApiResponses({@ApiResponse(responseCode = "200", description = "Liste des produits")})
+  @ApiResponses({
+    @ApiResponse(
+        responseCode = "200",
+        description = "Liste des produits",
+        content = @Content(
+            mediaType = MediaType.APPLICATION_JSON_VALUE,
+            schema = @Schema(implementation = ProductResponse.class)
+        )
+    ),
+    @ApiResponse(responseCode = "401", description = "Token absent ou invalide"),
+    @ApiResponse(responseCode = "403", description = "Accès refusé")
+  })
   @GetMapping
   public ResponseEntity<CustomResponse> list(
       @RequestParam(defaultValue = "0") int page,
@@ -128,9 +165,22 @@ public class ProductController {
 
   // ── Rechercher des produits ───────────────────────────────────
 
-  @Operation(summary = "Rechercher des produits par mot-clé")
+  @Operation(
+      summary = "Rechercher des produits par mot-clé",
+      description = "Rôle requis : Authentifié (ADMIN, OWNER, EMPLOYEE, etc.). Toute personne connectée peut rechercher des produits.")
   @SecurityRequirement(name = "bearerAuth")
-  @ApiResponses({@ApiResponse(responseCode = "200", description = "Résultats de recherche")})
+  @ApiResponses({
+    @ApiResponse(
+        responseCode = "200",
+        description = "Résultats de recherche",
+        content = @Content(
+            mediaType = MediaType.APPLICATION_JSON_VALUE,
+            schema = @Schema(implementation = ProductResponse.class)
+        )
+    ),
+    @ApiResponse(responseCode = "401", description = "Token absent ou invalide"),
+    @ApiResponse(responseCode = "403", description = "Accès refusé")
+  })
   @GetMapping("/search")
   public ResponseEntity<CustomResponse> search(
       @RequestParam String keyword,
@@ -154,9 +204,22 @@ public class ProductController {
 
   // ── Lister par catégorie ──────────────────────────────────────
 
-  @Operation(summary = "Lister les produits par catégorie")
+  @Operation(
+      summary = "Lister les produits par catégorie",
+      description = "Rôle requis : Authentifié (ADMIN, OWNER, EMPLOYEE, etc.). Toute personne connectée peut lister les produits par catégorie.")
   @SecurityRequirement(name = "bearerAuth")
-  @ApiResponses({@ApiResponse(responseCode = "200", description = "Produits de la catégorie")})
+  @ApiResponses({
+    @ApiResponse(
+        responseCode = "200",
+        description = "Produits de la catégorie",
+        content = @Content(
+            mediaType = MediaType.APPLICATION_JSON_VALUE,
+            schema = @Schema(implementation = ProductResponse.class)
+        )
+    ),
+    @ApiResponse(responseCode = "401", description = "Token absent ou invalide"),
+    @ApiResponse(responseCode = "403", description = "Accès refusé")
+  })
   @GetMapping("/category/{category}")
   public ResponseEntity<CustomResponse> listByCategory(
       @PathVariable String category,
@@ -180,11 +243,23 @@ public class ProductController {
 
   // ── Mettre à jour un produit ──────────────────────────────────
 
-  @Operation(summary = "Mettre à jour un produit")
+  @Operation(
+      summary = "Mettre à jour un produit",
+      description = "Rôle requis : ADMIN. Seuls les administrateurs peuvent modifier un produit.")
   @SecurityRequirement(name = "bearerAuth")
   @ApiResponses({
-    @ApiResponse(responseCode = "200", description = "Produit mis à jour"),
-    @ApiResponse(responseCode = "404", description = "Produit introuvable")
+    @ApiResponse(
+        responseCode = "200",
+        description = "Produit mis à jour",
+        content = @Content(
+            mediaType = MediaType.APPLICATION_JSON_VALUE,
+            schema = @Schema(implementation = ProductResponse.class)
+        )
+    ),
+    @ApiResponse(responseCode = "404", description = "Produit introuvable"),
+    @ApiResponse(responseCode = "400", description = "Données invalides"),
+    @ApiResponse(responseCode = "401", description = "Token absent ou invalide"),
+    @ApiResponse(responseCode = "403", description = "Accès refusé")
   })
   @PutMapping("/{id}")
   public ResponseEntity<CustomResponse> update(
@@ -206,11 +281,22 @@ public class ProductController {
 
   // ── Supprimer (soft delete) un produit ────────────────────────
 
-  @Operation(summary = "Désactiver un produit (soft delete)")
+  @Operation(
+      summary = "Désactiver un produit (soft delete)",
+      description = "Rôle requis : ADMIN. Seuls les administrateurs peuvent désactiver un produit.")
   @SecurityRequirement(name = "bearerAuth")
   @ApiResponses({
-    @ApiResponse(responseCode = "200", description = "Produit désactivé"),
-    @ApiResponse(responseCode = "404", description = "Produit introuvable")
+    @ApiResponse(
+        responseCode = "200",
+        description = "Produit désactivé",
+        content = @Content(
+            mediaType = MediaType.APPLICATION_JSON_VALUE,
+            schema = @Schema(implementation = ProductResponse.class)
+        )
+    ),
+    @ApiResponse(responseCode = "404", description = "Produit introuvable"),
+    @ApiResponse(responseCode = "401", description = "Token absent ou invalide"),
+    @ApiResponse(responseCode = "403", description = "Accès refusé")
   })
   @DeleteMapping("/{id}")
   public ResponseEntity<CustomResponse> delete(
@@ -229,12 +315,23 @@ public class ProductController {
 
   // ── Ajouter un code-barres à un produit ───────────────────────
 
-  @Operation(summary = "Ajouter un code-barres à un produit")
+  @Operation(
+      summary = "Ajouter un code-barres à un produit",
+      description = "Rôle requis : ADMIN. Seuls les administrateurs peuvent ajouter un code-barres à un produit.")
   @SecurityRequirement(name = "bearerAuth")
   @ApiResponses({
-    @ApiResponse(responseCode = "201", description = "Code-barres ajouté"),
+    @ApiResponse(
+        responseCode = "201",
+        description = "Code-barres ajouté",
+        content = @Content(
+            mediaType = MediaType.APPLICATION_JSON_VALUE,
+            schema = @Schema(implementation = ProductResponse.class)
+        )
+    ),
     @ApiResponse(responseCode = "404", description = "Produit introuvable"),
-    @ApiResponse(responseCode = "409", description = "Code-barres déjà existant")
+    @ApiResponse(responseCode = "409", description = "Code-barres déjà existant"),
+    @ApiResponse(responseCode = "401", description = "Token absent ou invalide"),
+    @ApiResponse(responseCode = "403", description = "Accès refusé")
   })
   @PostMapping("/{productId}/barcodes")
   public ResponseEntity<CustomResponse> addBarcode(
@@ -257,15 +354,22 @@ public class ProductController {
 
   // ── Générer un code-barres interne ────────────────────────────
 
-  @Operation(
+    @Operation(
       summary = "Générer un code-barres interne pour un produit",
-      description =
-          "Génère un code-barres séquentiel au format 2XXXXXXXXXXXX "
-              + "(préfixe 2 + 12 chiffres, ex : 2000000000001).")
+      description = "Rôle requis : Authentifié (ADMIN, OWNER, EMPLOYEE, etc.). Toute personne connectée peut générer un code-barres interne. Génère un code-barres séquentiel au format 2XXXXXXXXXXXX (préfixe 2 + 12 chiffres, ex : 2000000000001).")
   @SecurityRequirement(name = "bearerAuth")
   @ApiResponses({
-    @ApiResponse(responseCode = "201", description = "Code-barres interne généré"),
-    @ApiResponse(responseCode = "404", description = "Produit introuvable")
+    @ApiResponse(
+        responseCode = "201",
+        description = "Code-barres interne généré",
+        content = @Content(
+            mediaType = MediaType.APPLICATION_JSON_VALUE,
+            schema = @Schema(implementation = ProductResponse.class)
+        )
+    ),
+    @ApiResponse(responseCode = "404", description = "Produit introuvable"),
+    @ApiResponse(responseCode = "401", description = "Token absent ou invalide"),
+    @ApiResponse(responseCode = "403", description = "Accès refusé")
   })
   @PostMapping("/{productId}/barcodes/generate")
   public ResponseEntity<CustomResponse> generateInternalBarcode(
@@ -285,11 +389,22 @@ public class ProductController {
 
   // ── Rechercher par code-barres ────────────────────────────────
 
-  @Operation(summary = "Rechercher un produit par code-barres")
+  @Operation(
+      summary = "Rechercher un produit par code-barres",
+      description = "Rôle requis : Authentifié (ADMIN, OWNER, EMPLOYEE, etc.). Toute personne connectée peut rechercher un produit par code-barres.")
   @SecurityRequirement(name = "bearerAuth")
   @ApiResponses({
-    @ApiResponse(responseCode = "200", description = "Code-barres trouvé"),
-    @ApiResponse(responseCode = "404", description = "Code-barres introuvable")
+    @ApiResponse(
+        responseCode = "200",
+        description = "Code-barres trouvé",
+        content = @Content(
+            mediaType = MediaType.APPLICATION_JSON_VALUE,
+            schema = @Schema(implementation = ProductResponse.BarcodeResponse.class)
+        )
+    ),
+    @ApiResponse(responseCode = "404", description = "Code-barres introuvable"),
+    @ApiResponse(responseCode = "401", description = "Token absent ou invalide"),
+    @ApiResponse(responseCode = "403", description = "Accès refusé")
   })
   @GetMapping("/barcodes/{code}")
   public ResponseEntity<CustomResponse> lookupBarcode(
@@ -308,13 +423,22 @@ public class ProductController {
 
   // ── Création rapide par un employé ────────────────────────────
 
-  @Operation(
+    @Operation(
       summary = "Créer rapidement un produit (employé)",
-      description = "Crée un produit en statut PENDING et l'ajoute au catalogue de la supérette.")
+      description = "Rôle requis : Authentifié (EMPLOYEE, OWNER, ADMIN, etc.). Un employé ou administrateur peut créer rapidement un produit en statut PENDING pour sa supérette.")
   @SecurityRequirement(name = "bearerAuth")
   @ApiResponses({
-    @ApiResponse(responseCode = "201", description = "Produit créé (en attente de validation)"),
-    @ApiResponse(responseCode = "404", description = "Supérette introuvable")
+    @ApiResponse(
+        responseCode = "201",
+        description = "Produit créé (en attente de validation)",
+        content = @Content(
+            mediaType = MediaType.APPLICATION_JSON_VALUE,
+            schema = @Schema(implementation = ProductResponse.class)
+        )
+    ),
+    @ApiResponse(responseCode = "404", description = "Supérette introuvable"),
+    @ApiResponse(responseCode = "401", description = "Token absent ou invalide"),
+    @ApiResponse(responseCode = "403", description = "Accès refusé")
   })
   @PostMapping("/stores/{storeId}/quick-create")
   public ResponseEntity<CustomResponse> quickCreate(
@@ -337,13 +461,22 @@ public class ProductController {
 
   // ── Approuver un produit ──────────────────────────────────────
 
-  @Operation(
+    @Operation(
       summary = "Approuver un produit en attente",
-      description = "Passe le statut d'un produit de PENDING à APPROVED.")
+      description = "Rôle requis : ADMIN. Seuls les administrateurs peuvent approuver un produit en attente (PENDING → APPROVED).")
   @SecurityRequirement(name = "bearerAuth")
   @ApiResponses({
-    @ApiResponse(responseCode = "200", description = "Produit approuvé"),
-    @ApiResponse(responseCode = "404", description = "Produit introuvable")
+    @ApiResponse(
+        responseCode = "200",
+        description = "Produit approuvé",
+        content = @Content(
+            mediaType = MediaType.APPLICATION_JSON_VALUE,
+            schema = @Schema(implementation = ProductResponse.class)
+        )
+    ),
+    @ApiResponse(responseCode = "404", description = "Produit introuvable"),
+    @ApiResponse(responseCode = "401", description = "Token absent ou invalide"),
+    @ApiResponse(responseCode = "403", description = "Accès refusé")
   })
   @PutMapping("/{id}/approve")
   public ResponseEntity<CustomResponse> approve(
@@ -362,9 +495,22 @@ public class ProductController {
 
   // ── Lister les produits en attente d'une supérette ────────────
 
-  @Operation(summary = "Lister les produits en attente de validation pour une supérette")
+  @Operation(
+      summary = "Lister les produits en attente de validation pour une supérette",
+      description = "Rôle requis : ADMIN ou OWNER. Seuls les administrateurs ou propriétaires peuvent lister les produits en attente de validation pour une supérette.")
   @SecurityRequirement(name = "bearerAuth")
-  @ApiResponses({@ApiResponse(responseCode = "200", description = "Produits en attente")})
+  @ApiResponses({
+    @ApiResponse(
+        responseCode = "200",
+        description = "Produits en attente",
+        content = @Content(
+            mediaType = MediaType.APPLICATION_JSON_VALUE,
+            schema = @Schema(implementation = ProductResponse.class)
+        )
+    ),
+    @ApiResponse(responseCode = "401", description = "Token absent ou invalide"),
+    @ApiResponse(responseCode = "403", description = "Accès refusé")
+  })
   @GetMapping("/stores/{storeId}/pending")
   public ResponseEntity<CustomResponse> listPending(
       @PathVariable UUID storeId,

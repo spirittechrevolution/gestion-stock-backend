@@ -1,3 +1,19 @@
+## 9. Sécurité & documentation des rôles d'accès
+
+Chaque endpoint de l'API indique explicitement le ou les rôles requis dans la documentation Swagger (`@Operation(description=...)`).
+
+- **ADMIN** : accès total (création, modification, suppression, validation)
+- **OWNER** : gestion de ses propres supérettes, validation, consultation
+- **EMPLOYEE** : opérations de caisse, création rapide, consultation
+
+Les DTOs de requête et de réponse sont également annotés (Javadoc) pour préciser les rôles pouvant utiliser ou recevoir chaque structure.
+
+**Exemples :**
+
+- `@Operation(description = "Rôle requis : ADMIN. Seuls les administrateurs peuvent créer un produit.")`
+- `/** Rôle requis : ADMIN. Seuls les administrateurs peuvent utiliser ce DTO. */`
+
+Consultez la documentation Swagger (http://localhost:9090/api/swagger-ui.html) pour voir les rôles requis sur chaque endpoint.
 # Samba — Backend API Supérettes
 
 > Plateforme de gestion multi-supérettes avec catalogue partagé, scan de produits et prix personnalisés par magasin.

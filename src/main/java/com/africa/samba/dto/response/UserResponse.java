@@ -6,7 +6,11 @@ import java.time.LocalDateTime;
 import java.util.Set;
 import java.util.UUID;
 
-/** Représentation publique d'un utilisateur retournée par l'API. */
+/**
+ * Représentation publique d'un utilisateur retournée par l'API.
+ * <p>
+ * Accessible à tout utilisateur authentifié (ADMIN, OWNER, EMPLOYEE, etc.).
+ */
 public record UserResponse(
     UUID id,
     String keycloakId,

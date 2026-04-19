@@ -49,7 +49,8 @@ public class UserProfileController {
       summary = "Uploader / remplacer la photo de profil",
       description =
           "Formats acceptés : JPEG, PNG, WEBP – taille maximale : 5 Mo. "
-              + "L'URL retournée est directement accessible si le bucket est public.",
+              + "L'URL retournée est directement accessible si le bucket est public. "
+              + "Rôle requis : tout utilisateur authentifié (ADMIN, OWNER, EMPLOYEE, etc.).",
       tags = {"Mobile"})
   @SecurityRequirement(name = "bearerAuth")
   public ResponseEntity<CustomResponse> uploadAvatar(

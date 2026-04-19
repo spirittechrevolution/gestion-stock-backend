@@ -5,6 +5,8 @@ import com.africa.samba.common.exception.CustomException;
 import com.africa.samba.dto.request.CreateAdminRequest;
 import com.africa.samba.dto.response.AdminUserResponse;
 import java.util.List;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import java.util.UUID;
 
 /**
@@ -50,6 +52,7 @@ public interface AdminManagementService {
    * @return liste des administrateurs
    */
   List<AdminUserResponse> listAdmins();
+  Page<AdminUserResponse> listAdmins(Pageable pageable);
 
   /**
    * Modifie le rôle d'un administrateur Samba existant.

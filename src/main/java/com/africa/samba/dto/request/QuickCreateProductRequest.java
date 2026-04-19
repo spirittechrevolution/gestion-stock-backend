@@ -11,8 +11,9 @@ import lombok.Setter;
 
 /**
  * Requête de création rapide d'un produit par un employé.
- *
- * <p>Crée le produit en statut PENDING dans le catalogue global ET l'ajoute immédiatement au
+ * <p>
+ * Rôle requis : Authentifié (EMPLOYEE, OWNER, ADMIN, etc.).
+ * Crée le produit en statut PENDING dans le catalogue global ET l'ajoute immédiatement au
  * catalogue de la supérette avec prix et stock.
  */
 @Getter

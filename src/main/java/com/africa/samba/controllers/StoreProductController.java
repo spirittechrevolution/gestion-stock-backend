@@ -37,7 +37,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/v1/stores/{storeId}/products")
+@RequestMapping("/v1/stores")
 @RequiredArgsConstructor
 @Slf4j
 @Tag(name = "Catalogue Supérette", description = "Gestion des produits d'une supérette")
@@ -55,7 +55,7 @@ public class StoreProductController {
     @ApiResponse(responseCode = "404", description = "Supérette ou produit introuvable"),
     @ApiResponse(responseCode = "409", description = "Produit déjà dans le catalogue")
   })
-  @PostMapping
+  @PostMapping("/{storeId}/products")
   public ResponseEntity<CustomResponse> add(
       @PathVariable UUID storeId,
       @Valid @RequestBody AddStoreProductRequest request,
@@ -79,7 +79,7 @@ public class StoreProductController {
   @Operation(summary = "Lister les produits de la supérette avec pagination")
   @SecurityRequirement(name = "bearerAuth")
   @ApiResponses({@ApiResponse(responseCode = "200", description = "Catalogue de la supérette")})
-  @GetMapping
+  @GetMapping("/{storeId}/products")
   public ResponseEntity<CustomResponse> list(
       @PathVariable UUID storeId,
       @RequestParam(defaultValue = "0") int page,
@@ -111,7 +111,7 @@ public class StoreProductController {
     @ApiResponse(responseCode = "200", description = "Produit trouvé"),
     @ApiResponse(responseCode = "404", description = "Produit non trouvé pour ce code-barres")
   })
-  @GetMapping("/scan/{barcode}")
+  @GetMapping("/{storeId}/products/scan/{barcode}")
   public ResponseEntity<CustomResponse> scan(
       @PathVariable UUID storeId, @PathVariable String barcode, HttpServletRequest httpRequest)
       throws CustomException {
@@ -132,7 +132,7 @@ public class StoreProductController {
   @Operation(summary = "Lister les produits en stock bas dans la supérette")
   @SecurityRequirement(name = "bearerAuth")
   @ApiResponses({@ApiResponse(responseCode = "200", description = "Produits en stock bas")})
-  @GetMapping("/low-stock")
+  @GetMapping("/{storeId}/products/low-stock")
   public ResponseEntity<CustomResponse> lowStock(
       @PathVariable UUID storeId,
       @RequestParam(defaultValue = "0") int page,
@@ -161,7 +161,7 @@ public class StoreProductController {
     @ApiResponse(responseCode = "200", description = "Produit mis à jour"),
     @ApiResponse(responseCode = "404", description = "Produit introuvable dans cette supérette")
   })
-  @PutMapping("/{storeProductId}")
+  @PutMapping("/{storeId}/products/{storeProductId}")
   public ResponseEntity<CustomResponse> update(
       @PathVariable UUID storeId,
       @PathVariable UUID storeProductId,
@@ -188,7 +188,7 @@ public class StoreProductController {
     @ApiResponse(responseCode = "200", description = "Produit retiré du catalogue"),
     @ApiResponse(responseCode = "404", description = "Produit introuvable dans cette supérette")
   })
-  @DeleteMapping("/{storeProductId}")
+  @DeleteMapping("/{storeId}/products/{storeProductId}")
   public ResponseEntity<CustomResponse> remove(
       @PathVariable UUID storeId, @PathVariable UUID storeProductId, HttpServletRequest httpRequest)
       throws CustomException {

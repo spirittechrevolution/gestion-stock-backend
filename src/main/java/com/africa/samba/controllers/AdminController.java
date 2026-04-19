@@ -17,7 +17,8 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
-import java.util.List;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -56,12 +57,12 @@ public class AdminController {
   // ── Créer un administrateur ────────────────────────────────────
 
   @Operation(
-      summary = "Créer un administrateur Samba",
-      description =
+        summary = "Créer un administrateur Samba",
+        description =
           "Crée un compte administrateur interne Samba. "
-              + "Déclenche la création Keycloak, l'attribution du rôle (ADMIN ou SUPER_ADMIN), "
-              + "la synchronisation en base et l'envoi d'un email de définition du mot de passe. "
-              + "Réservé au Super Administrateur.")
+            + "Déclenche la création Keycloak, l'attribution du rôle (ADMIN ou SUPER_ADMIN), "
+            + "la synchronisation en base et l'envoi d'un email de définition du mot de passe. "
+            + "Rôle requis : SUPER_ADMIN. Seul un super administrateur peut créer un administrateur.")
   @SecurityRequirement(name = "bearerAuth")
   @ApiResponses({
     @ApiResponse(responseCode = "201", description = "Administrateur créé avec succès"),
@@ -93,7 +94,7 @@ public class AdminController {
 
   @Operation(
       summary = "Lister les administrateurs Samba",
-      description = "Retourne la liste de tous les administrateurs actifs de la plateforme.")
+      description = "Retourne la liste de tous les administrateurs actifs de la plateforme. Rôle requis : ADMIN ou SUPER_ADMIN.")
   @SecurityRequirement(name = "bearerAuth")
   @ApiResponses({
     @ApiResponse(responseCode = "200", description = "Liste des administrateurs"),
@@ -101,12 +102,12 @@ public class AdminController {
     @ApiResponse(responseCode = "403", description = "Accès refusé – rôle ADMIN requis")
   })
   @GetMapping
-  public ResponseEntity<CustomResponse> listAdmins(HttpServletRequest httpRequest)
+  public ResponseEntity<CustomResponse> listAdmins(Pageable pageable, HttpServletRequest httpRequest)
       throws CustomException {
 
     RoleGuard.requireAdmin(requestHeaderParser, httpRequest);
 
-    List<AdminUserResponse> admins = adminManagementService.listAdmins();
+    Page<AdminUserResponse> admins = adminManagementService.listAdmins(pageable);
 
     return ResponseEntity.ok(
         new CustomResponse(
@@ -119,11 +120,11 @@ public class AdminController {
   // ── Affecter un rôle à un administrateur ───────────────────────
 
   @Operation(
-      summary = "Affecter un rôle à un administrateur Samba",
-      description =
+        summary = "Affecter un rôle à un administrateur Samba",
+        description =
           "Modifie le rôle d'un administrateur existant (ADMIN ↔ SUPER_ADMIN). "
-              + "L'ancien rôle est retiré dans Keycloak avant d'attribuer le nouveau. "
-              + "Réservé au Super Administrateur.")
+            + "L'ancien rôle est retiré dans Keycloak avant d'attribuer le nouveau. "
+            + "Rôle requis : SUPER_ADMIN. Seul un super administrateur peut affecter un rôle à un administrateur.")
   @SecurityRequirement(name = "bearerAuth")
   @ApiResponses({
     @ApiResponse(responseCode = "200", description = "Rôle affecté avec succès"),
@@ -155,11 +156,11 @@ public class AdminController {
   // ── Supprimer logiquement un administrateur ────────────────────
 
   @Operation(
-      summary = "Supprimer logiquement un administrateur Samba",
-      description =
+        summary = "Supprimer logiquement un administrateur Samba",
+        description =
           "Effectue une suppression logique : désactive le compte Keycloak (enabled=false) "
-              + "et positionne deletedAt en base. Le compte n'est pas physiquement supprimé. "
-              + "Réservé au Super Administrateur.")
+            + "et positionne deletedAt en base. Le compte n'est pas physiquement supprimé. "
+            + "Rôle requis : SUPER_ADMIN. Seul un super administrateur peut supprimer logiquement un administrateur.")
   @SecurityRequirement(name = "bearerAuth")
   @ApiResponses({
     @ApiResponse(responseCode = "200", description = "Administrateur supprimé logiquement"),

@@ -6,7 +6,12 @@ import java.util.UUID;
 import lombok.Builder;
 import lombok.Getter;
 
-/** Réponse retournée après la création réussie d'un administrateur Samba. */
+/**
+ * Réponse retournée après la création ou la consultation d'un administrateur Samba.
+ * <p>
+ * Accessible aux utilisateurs avec le rôle ADMIN ou SUPER_ADMIN.
+ * La création nécessite le rôle SUPER_ADMIN, la consultation le rôle ADMIN ou SUPER_ADMIN.
+ */
 @Getter
 @Builder
 public class AdminUserResponse {

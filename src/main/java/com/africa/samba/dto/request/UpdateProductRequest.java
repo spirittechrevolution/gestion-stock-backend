@@ -6,6 +6,11 @@ import lombok.Setter;
 
 @Getter
 @Setter
+/**
+ * Requête de modification de produit.
+ * <p>
+ * Rôle requis : ADMIN. Seuls les administrateurs peuvent modifier un produit.
+ */
 public class UpdateProductRequest {
 
   @Size(min = 1, max = 150)

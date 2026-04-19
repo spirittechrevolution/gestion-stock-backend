@@ -7,6 +7,11 @@ import lombok.Setter;
 
 @Getter
 @Setter
+/**
+ * Requête de création de produit.
+ * <p>
+ * Rôle requis : ADMIN. Seuls les administrateurs peuvent créer un produit dans le catalogue global.
+ */
 public class CreateProductRequest {
 
   @NotBlank

@@ -4,6 +4,8 @@ import com.africa.samba.codeLists.Role;
 import com.africa.samba.entity.User;
 import java.time.LocalDateTime;
 import java.util.List;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
@@ -28,6 +30,9 @@ public interface UserRepository extends JpaRepository<User, UUID> {
 
   @Query("SELECT DISTINCT u FROM User u JOIN u.roles r WHERE r IN :roles")
   List<User> findAdminUsers(@Param("roles") Set<Role> roles);
+
+  @Query("SELECT DISTINCT u FROM User u JOIN u.roles r WHERE r IN :roles")
+  Page<User> findAdminUsers(@Param("roles") Set<Role> roles, Pageable pageable);
 
   /** Mise à jour de la date de dernière connexion */
   @Modifying
