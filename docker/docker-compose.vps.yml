@@ -1,0 +1,330 @@
+# ===================================================================
+# Samba Platform – Infrastructure Docker (PRODUCTION – VPS)
+# ===================================================================
+#
+# Services             | Port hôte  | Accès
+# ———————————————————— | ————————— | ————————————————————————————————
+# Nginx (reverse proxy)| 80         | http://<VPS_IP>
+# Backend API          | (interne)  | http://<VPS_IP>/api
+# Keycloak             | (interne)  | http://<VPS_IP>/auth
+# MinIO API            | 9000       | http://<VPS_IP>:9000
+# MinIO Console        | 9001       | http://<VPS_IP>:9001
+# pgAdmin              | 5050       | http://<VPS_IP>:5050
+# Dozzle (logs)        | 8888       | http://<VPS_IP>:8888
+# Prometheus           | 9090       | http://<VPS_IP>:9090
+# Grafana              | 3001       | http://<VPS_IP>:3001
+#
+# Images Docker Hub :
+#   samba-project/samba-hub       → Backend Spring Boot
+#   samba-project/samba-admin     → Frontend Admin Angular
+#   samba-project/samba-portail   → Frontend Portail Angular
+#
+# Prérequis VPS :
+#   mkdir -p /opt/samba/{nginx,postgres}
+#   cp docker-compose.vps.yml /opt/samba/
+#   cp .env.prod              /opt/samba/.env
+#   cp nginx/nginx.conf       /opt/samba/nginx/
+#   cp postgres/init-db.sh    /opt/samba/postgres/
+#   cp prometheus/prometheus.yml /opt/samba/prometheus/
+#   cp -r grafana/            /opt/samba/grafana/
+#
+# Démarrage : cd /opt/samba && docker compose -f docker-compose.vps.yml up -d
+# ===================================================================
+
+services:
+
+  # ─────────────────────────────────────────────────────────────────
+  # PostgreSQL 17 – Serveur unique, 3 bases de données
+  # ─────────────────────────────────────────────────────────────────
+  postgres:
+    image: postgres:17-alpine
+    container_name: samba-postgres-prod
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+      PGDATA: /var/lib/postgresql/data/pgdata
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./postgres/init-db.sh:/docker-entrypoint-initdb.d/init-db.sh:ro
+    # Pas d'exposition de port hôte en production — accès interne uniquement
+    networks:
+      - ubax-net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  # ─────────────────────────────────────────────────────────────────
+  # MinIO – Object Storage S3-compatible
+  # ─────────────────────────────────────────────────────────────────
+  minio:
+    image: minio/minio:latest
+    container_name: samba-minio-prod
+    restart: unless-stopped
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
+    volumes:
+      - minio_data:/data
+    ports:
+      - "9000:9000"   # API MinIO (S3)
+      - "9001:9001"   # Console MinIO
+    networks:
+      - ubax-net
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 30s
+      timeout: 20s
+      retries: 3
+      start_period: 10s
+
+  # ─────────────────────────────────────────────────────────────────
+  # MinIO Init – Création des buckets (exécution unique)
+  # ─────────────────────────────────────────────────────────────────
+  minio-init:
+    image: minio/mc:latest
+    container_name: samba-minio-init-prod
+    restart: "no"
+    depends_on:
+      minio:
+        condition: service_healthy
+    entrypoint:
+      - /bin/sh
+      - -c
+      - |
+        mc alias set samba http://minio:9000 ${MINIO_ROOT_USER} ${MINIO_ROOT_PASSWORD}
+
+        mc anonymous set download samba/users-avatars
+        mc anonymous set download samba/boutiquess-logos
+        mc anonymous set download samba/properties-media
+
+        echo "Buckets MinIO initialises avec succes"
+    networks:
+      - ubax-net
+
+  # ─────────────────────────────────────────────────────────────────
+  # pgAdmin 4 – Interface web PostgreSQL
+  #   Connexions pré-configurées : db-ubax | db-keycloak | db-minio
+  #   Mode Desktop (SERVER_MODE=False) → pas d'écran de connexion
+  # ─────────────────────────────────────────────────────────────────
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: ubax-pgadmin-prod
+    restart: unless-stopped
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_EMAIL}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD}
+      PGADMIN_CONFIG_SERVER_MODE: "False"
+      PGADMIN_CONFIG_MASTER_PASSWORD_REQUIRED: "False"
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+      - ./pgadmin/servers.json:/pgadmin4/servers.json:ro
+    ports:
+      - "5050:80"
+    networks:
+      - ubax-net
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  # ─────────────────────────────────────────────────────────────────
+  # Keycloak 26 – IAM / OAuth2 / OIDC
+  #   Mode : start (production)
+  #   ⚠️  HTTP activé car pas encore de TLS sur le VPS
+  #       Ajouter Certbot + HTTPS quand un domaine sera configuré
+  # ─────────────────────────────────────────────────────────────────
+  keycloak:
+    image: quay.io/keycloak/keycloak:26.1.5
+    container_name: ubax-keycloak-prod
+    restart: unless-stopped
+    command: start-dev
+    environment:
+      KC_DB: postgres
+      KC_DB_URL_HOST: postgres
+      KC_DB_URL_DATABASE: ${KEYCLOAK_DB_NAME}
+      KC_DB_USERNAME: ${POSTGRES_USER}
+      KC_DB_PASSWORD: ${POSTGRES_PASSWORD}
+      KC_BOOTSTRAP_ADMIN_USERNAME: ${KEYCLOAK_ADMIN_USER}
+      KC_BOOTSTRAP_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD}
+      KC_HTTP_PORT: 8080
+      KC_HTTP_RELATIVE_PATH: /auth
+      KC_HOSTNAME: ${VPS_IP}
+      KC_HOSTNAME_PORT: 80
+      KC_HOSTNAME_ADMIN: "http://${VPS_IP}/auth"
+      KC_HOSTNAME_STRICT: "false"
+      KC_PROXY_HEADERS: xforwarded
+      KC_HTTP_ENABLED: "true"
+      KC_HEALTH_ENABLED: "true"
+      KC_LOG_LEVEL: info
+      # Limiter la RAM JVM : Keycloak peut saturer la mémoire du VPS
+      JAVA_OPTS_APPEND: "-Xms256m -Xmx512m"
+    networks:
+      - ubax-net
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:9000/health/ready || exit 1"]
+      interval: 20s
+      timeout: 10s
+      retries: 20
+      start_period: 60s
+
+  # ─────────────────────────────────────────────────────────────────
+  # Backend Spring Boot – image Docker Hub (ubaxproject/ubax-hub)
+  # ─────────────────────────────────────────────────────────────────
+  backend:
+    image: ubaxproject/ubax-hub:${BACKEND_TAG:-latest}
+    container_name: ubax-backend-prod
+    restart: unless-stopped
+    environment:
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: ${POSTGRES_DB}
+      DB_USERNAME: ${POSTGRES_USER}
+      DB_PASSWORD: ${POSTGRES_PASSWORD}
+      KEYCLOAK_URL: http://keycloak:8080/auth
+      KEYCLOAK_REALM: ${KEYCLOAK_REALM}
+      KEYCLOAK_CLIENT_ID: ${KEYCLOAK_CLIENT_ID}
+      KEYCLOAK_CLIENT_SECRET: ${KEYCLOAK_CLIENT_SECRET}
+      KEYCLOAK_ISSUER_URI: http://keycloak:8080/auth/realms/${KEYCLOAK_REALM}
+      MINIO_ENDPOINT: http://minio:9000
+      MINIO_ACCESS_KEY: ${MINIO_ROOT_USER}
+      MINIO_SECRET_KEY: ${MINIO_ROOT_PASSWORD}
+      MAIL_HOST: ${MAIL_HOST}
+      MAIL_PORT: ${MAIL_PORT}
+      MAIL_USERNAME: ${MAIL_USERNAME}
+      MAIL_PASSWORD: ${MAIL_PASSWORD}
+      MAIL_FROM: ${MAIL_FROM}
+      MAIL_FROM_NAME: ${MAIL_FROM_NAME}
+      LAM_SMS_URL: ${LAM_SMS_URL}
+      LAM_ACCOUNT_ID: ${LAM_ACCOUNT_ID}
+      LAM_PASSWORD: ${LAM_PASSWORD}
+      LAM_SENDER: ${LAM_SENDER}
+      ADMIN_EMAIL: ${ADMIN_EMAIL}
+      # ── Bootstrap Super Admin (premier démarrage uniquement) ──────
+      BOOTSTRAP_ENABLED: ${BOOTSTRAP_ENABLED:-false}
+      BOOTSTRAP_SUPER_ADMIN_EMAIL: ${BOOTSTRAP_SUPER_ADMIN_EMAIL}
+      BOOTSTRAP_SUPER_ADMIN_FIRST_NAME: ${BOOTSTRAP_SUPER_ADMIN_FIRST_NAME}
+      BOOTSTRAP_SUPER_ADMIN_LAST_NAME: ${BOOTSTRAP_SUPER_ADMIN_LAST_NAME}
+      BOOTSTRAP_SUPER_ADMIN_PHONE: ${BOOTSTRAP_SUPER_ADMIN_PHONE}
+      SERVER_SERVLET_CONTEXT_PATH: /api
+      SERVER_PORT: 8080
+      SPRING_PROFILES_ACTIVE: docker
+    networks:
+      - ubax-net
+    depends_on:
+      postgres:
+        condition: service_healthy
+      keycloak:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:8080/api/actuator/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+
+  # ─────────────────────────────────────────────────────────────────
+  # Nginx – Reverse proxy (API + Keycloak)
+  # ─────────────────────────────────────────────────────────────────
+  nginx:
+    image: nginx:1.27-alpine
+    container_name: ubax-nginx-prod
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      # - "443:443"   # À activer quand le domaine + SSL seront configurés
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+    networks:
+      - ubax-net
+    depends_on:
+      - backend
+      - keycloak
+
+  # ─────────────────────────────────────────────────────────────────
+  # Prometheus – Collecte des métriques
+  # ─────────────────────────────────────────────────────────────────
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: ubax-prometheus-prod
+    restart: unless-stopped
+    volumes:
+      - ./prometheus/prometheus.vps.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.retention.time=15d'
+    ports:
+      - "9090:9090"
+    networks:
+      - ubax-net
+    depends_on:
+      backend:
+        condition: service_healthy
+
+  # ─────────────────────────────────────────────────────────────────
+  # Grafana – Dashboards de monitoring
+  #   Accès : http://<VPS_IP>:3001
+  #   Login par défaut : admin / ${GRAFANA_PASSWORD}
+  # ─────────────────────────────────────────────────────────────────
+  grafana:
+    image: grafana/grafana:latest
+    container_name: ubax-grafana-prod
+    restart: unless-stopped
+    environment:
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_PASSWORD:-ubax-grafana-2026}
+      GF_SERVER_ROOT_URL: http://%(domain)s:3001/
+      GF_USERS_ALLOW_SIGN_UP: "false"
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./grafana/provisioning:/etc/grafana/provisioning:ro
+    ports:
+      - "3001:3000"
+    networks:
+      - ubax-net
+    depends_on:
+      - prometheus
+
+  # ─────────────────────────────────────────────────────────────────
+  # Dozzle – Logs en temps réel
+  # ─────────────────────────────────────────────────────────────────
+  dozzle:
+    image: amir20/dozzle:latest
+    container_name: ubax-dozzle-prod
+    restart: unless-stopped
+    ports:
+      - "8888:8080"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    environment:
+      DOZZLE_LEVEL: info
+      DOZZLE_TAILSIZE: 500
+    networks:
+      - ubax-net
+
+# ─── Volumes persistants ──────────────────────────────────────────
+volumes:
+  postgres_data:
+    name: ubax-postgres-prod-data
+  pgadmin_data:
+    name: ubax-pgadmin-prod-data
+  minio_data:
+    name: ubax-minio-prod-data
+  prometheus_data:
+    name: ubax-prometheus-prod-data
+  grafana_data:
+    name: ubax-grafana-prod-data
+
+# ─── Réseau interne ───────────────────────────────────────────────
+networks:
+  ubax-net:
+    name: ubax-prod-net
+    driver: bridge

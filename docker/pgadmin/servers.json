@@ -1,0 +1,14 @@
+{
+  "Servers": {
+    "1": {
+      "Name": "SAMBA Platform – PostgreSQL",
+      "Group": "SAMBA Platform",
+      "Host": "postgres",
+      "Port": 5432,
+      "MaintenanceDB": "db-gestion-stock",
+      "Username": "postgres",
+      "SSLMode": "prefer",
+      "Comment": "Serveur PostgreSQL SAMBA – contient db-gestion-stock, db-keycloak, db-minio"
+    }
+  }
+}
