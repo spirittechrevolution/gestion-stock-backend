@@ -11,18 +11,21 @@ import com.africa.samba.dto.request.CreateAdminRequest;
 import com.africa.samba.dto.response.AdminUserResponse;
 import com.africa.samba.services.interfaces.AdminManagementService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -57,21 +60,23 @@ public class AdminController {
   // ── Créer un administrateur ────────────────────────────────────
 
   @Operation(
-        summary = "Créer un administrateur Samba",
-        description =
+      summary = "Créer un administrateur Samba",
+      description =
           "Crée un compte administrateur interne Samba. "
             + "Déclenche la création Keycloak, l'attribution du rôle (ADMIN ou SUPER_ADMIN), "
             + "la synchronisation en base et l'envoi d'un email de définition du mot de passe. "
             + "Rôle requis : SUPER_ADMIN. Seul un super administrateur peut créer un administrateur.")
   @SecurityRequirement(name = "bearerAuth")
   @ApiResponses({
-    @ApiResponse(responseCode = "201", description = "Administrateur créé avec succès"),
+    @ApiResponse(responseCode = "201", description = "Administrateur créé avec succès",
+        content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
+            schema = @Schema(implementation = AdminUserResponse.class))),
     @ApiResponse(responseCode = "400", description = "Données invalides ou rôle non autorisé"),
     @ApiResponse(responseCode = "401", description = "Token absent ou invalide"),
     @ApiResponse(responseCode = "403", description = "Accès refusé – rôle SUPER_ADMIN requis"),
     @ApiResponse(responseCode = "409", description = "Email déjà utilisé")
   })
-  @PostMapping
+  @PostMapping("")
   public ResponseEntity<CustomResponse> createAdmin(
       @Valid @RequestBody CreateAdminRequest request, HttpServletRequest httpRequest)
       throws CustomException {
@@ -97,11 +102,13 @@ public class AdminController {
       description = "Retourne la liste de tous les administrateurs actifs de la plateforme. Rôle requis : ADMIN ou SUPER_ADMIN.")
   @SecurityRequirement(name = "bearerAuth")
   @ApiResponses({
-    @ApiResponse(responseCode = "200", description = "Liste des administrateurs"),
+    @ApiResponse(responseCode = "200", description = "Liste des administrateurs",
+        content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
+            schema = @Schema(implementation = AdminUserResponse.class))),
     @ApiResponse(responseCode = "401", description = "Token absent ou invalide"),
     @ApiResponse(responseCode = "403", description = "Accès refusé – rôle ADMIN requis")
   })
-  @GetMapping
+  @GetMapping("")
   public ResponseEntity<CustomResponse> listAdmins(Pageable pageable, HttpServletRequest httpRequest)
       throws CustomException {
 
@@ -120,14 +127,16 @@ public class AdminController {
   // ── Affecter un rôle à un administrateur ───────────────────────
 
   @Operation(
-        summary = "Affecter un rôle à un administrateur Samba",
-        description =
+      summary = "Affecter un rôle à un administrateur Samba",
+      description =
           "Modifie le rôle d'un administrateur existant (ADMIN ↔ SUPER_ADMIN). "
             + "L'ancien rôle est retiré dans Keycloak avant d'attribuer le nouveau. "
             + "Rôle requis : SUPER_ADMIN. Seul un super administrateur peut affecter un rôle à un administrateur.")
   @SecurityRequirement(name = "bearerAuth")
   @ApiResponses({
-    @ApiResponse(responseCode = "200", description = "Rôle affecté avec succès"),
+    @ApiResponse(responseCode = "200", description = "Rôle affecté avec succès",
+        content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
+            schema = @Schema(implementation = AdminUserResponse.class))),
     @ApiResponse(responseCode = "400", description = "Rôle invalide"),
     @ApiResponse(responseCode = "401", description = "Token absent ou invalide"),
     @ApiResponse(responseCode = "403", description = "Accès refusé – rôle SUPER_ADMIN requis"),
@@ -156,8 +165,8 @@ public class AdminController {
   // ── Supprimer logiquement un administrateur ────────────────────
 
   @Operation(
-        summary = "Supprimer logiquement un administrateur Samba",
-        description =
+      summary = "Supprimer logiquement un administrateur Samba",
+      description =
           "Effectue une suppression logique : désactive le compte Keycloak (enabled=false) "
             + "et positionne deletedAt en base. Le compte n'est pas physiquement supprimé. "
             + "Rôle requis : SUPER_ADMIN. Seul un super administrateur peut supprimer logiquement un administrateur.")

@@ -15,6 +15,7 @@ import com.africa.samba.services.interfaces.ProductService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
+import org.springframework.http.MediaType;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -70,7 +71,7 @@ public class ProductController {
     @ApiResponse(responseCode = "403", description = "Accès refusé"),
     @ApiResponse(responseCode = "409", description = "Produit déjà existant")
   })
-  @PostMapping
+  @PostMapping("")
   public ResponseEntity<CustomResponse> create(
       @Valid @RequestBody CreateProductRequest request, HttpServletRequest httpRequest)
       throws CustomException {
@@ -139,7 +140,7 @@ public class ProductController {
     @ApiResponse(responseCode = "401", description = "Token absent ou invalide"),
     @ApiResponse(responseCode = "403", description = "Accès refusé")
   })
-  @GetMapping
+  @GetMapping("")
   public ResponseEntity<CustomResponse> list(
       @RequestParam(defaultValue = "0") int page,
       @RequestParam(defaultValue = "20") int size,

@@ -11,6 +11,8 @@ import com.africa.samba.dto.request.UpdateStoreProductRequest;
 import com.africa.samba.dto.response.StoreProductResponse;
 import com.africa.samba.services.interfaces.StoreProductService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -25,6 +27,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -48,10 +51,14 @@ public class StoreProductController {
 
   // ── Ajouter un produit au catalogue ───────────────────────────
 
-  @Operation(summary = "Ajouter un produit au catalogue de la supérette")
+  @Operation(summary = "Ajouter un produit au catalogue de la supérette",
+      description = "Rôle requis : Authentifié (ADMIN, OWNER, EMPLOYEE). Associe un produit du catalogue global à la supérette avec son prix et stock.")
   @SecurityRequirement(name = "bearerAuth")
   @ApiResponses({
-    @ApiResponse(responseCode = "201", description = "Produit ajouté au catalogue"),
+    @ApiResponse(responseCode = "201", description = "Produit ajouté au catalogue",
+        content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
+            schema = @Schema(implementation = StoreProductResponse.class))),
+    @ApiResponse(responseCode = "401", description = "Token absent ou invalide"),
     @ApiResponse(responseCode = "404", description = "Supérette ou produit introuvable"),
     @ApiResponse(responseCode = "409", description = "Produit déjà dans le catalogue")
   })
@@ -76,9 +83,15 @@ public class StoreProductController {
 
   // ── Lister le catalogue (paginé) ─────────────────────────────
 
-  @Operation(summary = "Lister les produits de la supérette avec pagination")
+  @Operation(summary = "Lister les produits de la supérette avec pagination",
+      description = "Rôle requis : Authentifié (ADMIN, OWNER, EMPLOYEE). Retourne le catalogue paginé de la supérette.")
   @SecurityRequirement(name = "bearerAuth")
-  @ApiResponses({@ApiResponse(responseCode = "200", description = "Catalogue de la supérette")})
+  @ApiResponses({
+    @ApiResponse(responseCode = "200", description = "Catalogue de la supérette",
+        content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
+            schema = @Schema(implementation = StoreProductResponse.class))),
+    @ApiResponse(responseCode = "401", description = "Token absent ou invalide")
+  })
   @GetMapping("/{storeId}/products")
   public ResponseEntity<CustomResponse> list(
       @PathVariable UUID storeId,
@@ -105,10 +118,14 @@ public class StoreProductController {
 
   // ── Scanner un code-barres ────────────────────────────────────
 
-  @Operation(summary = "Rechercher un produit par code-barres dans la supérette")
+  @Operation(summary = "Rechercher un produit par code-barres dans la supérette",
+      description = "Rôle requis : Authentifié (ADMIN, OWNER, EMPLOYEE). Retourne le produit avec le prix de la supérette.")
   @SecurityRequirement(name = "bearerAuth")
   @ApiResponses({
-    @ApiResponse(responseCode = "200", description = "Produit trouvé"),
+    @ApiResponse(responseCode = "200", description = "Produit trouvé",
+        content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
+            schema = @Schema(implementation = StoreProductResponse.class))),
+    @ApiResponse(responseCode = "401", description = "Token absent ou invalide"),
     @ApiResponse(responseCode = "404", description = "Produit non trouvé pour ce code-barres")
   })
   @GetMapping("/{storeId}/products/scan/{barcode}")
@@ -129,9 +146,15 @@ public class StoreProductController {
 
   // ── Alertes stock bas ─────────────────────────────────────────
 
-  @Operation(summary = "Lister les produits en stock bas dans la supérette")
+  @Operation(summary = "Lister les produits en stock bas dans la supérette",
+      description = "Rôle requis : Authentifié (ADMIN, OWNER, EMPLOYEE). Retourne les produits dont le stock est inférieur ou égal au stock_min.")
   @SecurityRequirement(name = "bearerAuth")
-  @ApiResponses({@ApiResponse(responseCode = "200", description = "Produits en stock bas")})
+  @ApiResponses({
+    @ApiResponse(responseCode = "200", description = "Produits en stock bas",
+        content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
+            schema = @Schema(implementation = StoreProductResponse.class))),
+    @ApiResponse(responseCode = "401", description = "Token absent ou invalide")
+  })
   @GetMapping("/{storeId}/products/low-stock")
   public ResponseEntity<CustomResponse> lowStock(
       @PathVariable UUID storeId,
@@ -155,10 +178,15 @@ public class StoreProductController {
 
   // ── Mettre à jour un produit du catalogue ─────────────────────
 
-  @Operation(summary = "Modifier le prix / stock d'un produit dans la supérette")
+  @Operation(summary = "Modifier le prix / stock d'un produit dans la supérette",
+      description = "Rôle requis : Authentifié (ADMIN, OWNER, EMPLOYEE). Modifie le prix de vente, prix d'achat ou stock.")
   @SecurityRequirement(name = "bearerAuth")
   @ApiResponses({
-    @ApiResponse(responseCode = "200", description = "Produit mis à jour"),
+    @ApiResponse(responseCode = "200", description = "Produit mis à jour",
+        content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
+            schema = @Schema(implementation = StoreProductResponse.class))),
+    @ApiResponse(responseCode = "400", description = "Données invalides"),
+    @ApiResponse(responseCode = "401", description = "Token absent ou invalide"),
     @ApiResponse(responseCode = "404", description = "Produit introuvable dans cette supérette")
   })
   @PutMapping("/{storeId}/products/{storeProductId}")
@@ -182,10 +210,12 @@ public class StoreProductController {
 
   // ── Retirer un produit du catalogue ───────────────────────────
 
-  @Operation(summary = "Retirer un produit du catalogue de la supérette (soft delete)")
+  @Operation(summary = "Retirer un produit du catalogue de la supérette (soft delete)",
+      description = "Rôle requis : Authentifié (ADMIN, OWNER, EMPLOYEE). Retire le produit du catalogue sans le supprimer du catalogue global.")
   @SecurityRequirement(name = "bearerAuth")
   @ApiResponses({
     @ApiResponse(responseCode = "200", description = "Produit retiré du catalogue"),
+    @ApiResponse(responseCode = "401", description = "Token absent ou invalide"),
     @ApiResponse(responseCode = "404", description = "Produit introuvable dans cette supérette")
   })
   @DeleteMapping("/{storeId}/products/{storeProductId}")

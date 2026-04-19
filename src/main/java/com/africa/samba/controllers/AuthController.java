@@ -24,10 +24,13 @@ import com.africa.samba.services.interfaces.KeycloakAuthService;
 import com.africa.samba.services.interfaces.PasswordResetService;
 import com.africa.samba.services.interfaces.RegistrationService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.http.MediaType;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -80,7 +83,9 @@ public class AuthController {
           "Authentifie l'utilisateur via Keycloak (flux ROPC) et retourne l'access token et le"
               + " refresh token.")
   @ApiResponses({
-    @ApiResponse(responseCode = "200", description = "Connexion réussie"),
+    @ApiResponse(responseCode = "200", description = "Connexion réussie",
+        content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
+            schema = @Schema(implementation = LoginResponse.class))),
     @ApiResponse(responseCode = "401", description = "Identifiants invalides")
   })
   @PostMapping("/login")
@@ -103,7 +108,9 @@ public class AuthController {
       description =
           "Authentifie l'utilisateur via son numéro de téléphone et son mot de passe (flux ROPC).")
   @ApiResponses({
-    @ApiResponse(responseCode = "200", description = "Connexion réussie"),
+    @ApiResponse(responseCode = "200", description = "Connexion réussie",
+        content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
+            schema = @Schema(implementation = LoginResponse.class))),
     @ApiResponse(responseCode = "401", description = "Identifiants invalides")
   })
   @PostMapping("/login/phone")
@@ -172,7 +179,9 @@ public class AuthController {
           "Finalise l'inscription. Crée le compte dans Keycloak puis en base PostgreSQL."
               + " Retourne les informations du compte créé.")
   @ApiResponses({
-    @ApiResponse(responseCode = "201", description = "Compte créé avec succès"),
+    @ApiResponse(responseCode = "201", description = "Compte créé avec succès",
+        content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
+            schema = @Schema(implementation = RegisterResponse.class))),
     @ApiResponse(responseCode = "409", description = "Email ou téléphone déjà utilisé")
   })
   @PostMapping("/register/complete")

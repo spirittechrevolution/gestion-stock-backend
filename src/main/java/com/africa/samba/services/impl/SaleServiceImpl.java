@@ -100,9 +100,11 @@ public class SaleServiceImpl implements SaleService {
     }
 
     @Override
-    public Page<SaleResponse> listBySession(UUID sessionId, Pageable pageable) {
-        CashRegisterSession session = sessionRepository.findById(sessionId)
-                .orElseThrow(() -> new NotFoundException(ResponseMessageConstants.CASH_REGISTER_SESSION_NOT_FOUND));
+    public Page<SaleResponse> listBySession(UUID storeId, UUID cashRegisterId, UUID sessionId, Pageable pageable) {
+        CashRegisterSession session = sessionRepository
+                .findByIdAndCashRegister_IdAndCashRegister_Store_Id(sessionId, cashRegisterId, storeId)
+                .orElseThrow(() -> new NotFoundException(
+                        "Session introuvable pour la caisse " + cashRegisterId + " de la supérette " + storeId));
         return saleRepository.findByCashRegisterSession(session, pageable)
                 .map(saleMapper::toResponse);
     }
@@ -166,9 +168,10 @@ public class SaleServiceImpl implements SaleService {
     /**
      * Statistiques pour un produit précis dans une supérette (StoreProduct).
      */
-    public SalesStatsResponse statsByStoreProduct(UUID storeProductId) {
-        var storeProduct = storeProductRepository.findById(storeProductId)
-                .orElseThrow(() -> new NotFoundException("Produit non trouvé dans la supérette"));
+    public SalesStatsResponse statsByStoreProduct(UUID storeId, UUID storeProductId) {
+        var storeProduct = storeProductRepository.findByIdAndStoreId(storeProductId, storeId)
+                .orElseThrow(() -> new NotFoundException(
+                        "Produit introuvable dans la supérette " + storeId));
         var sales = saleRepository.findByStoreProduct(storeProduct);
         return computeStats(sales);
     }

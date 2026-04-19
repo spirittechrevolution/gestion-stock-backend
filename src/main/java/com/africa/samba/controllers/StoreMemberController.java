@@ -11,6 +11,8 @@ import com.africa.samba.dto.request.UpdateStoreMemberRequest;
 import com.africa.samba.dto.response.StoreMemberResponse;
 import com.africa.samba.services.interfaces.StoreMemberService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -25,6 +27,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -48,14 +51,19 @@ public class StoreMemberController {
 
   // ── Ajouter un membre ─────────────────────────────────────────
 
-  @Operation(summary = "Ajouter un employé ou manager à la supérette")
+  @Operation(summary = "Ajouter un employé ou manager à la supérette",
+      description = "Rôle requis : OWNER ou ADMIN. Associe un utilisateur à la supérette avec un rôle local (MANAGER ou EMPLOYEE).")
   @SecurityRequirement(name = "bearerAuth")
   @ApiResponses({
-    @ApiResponse(responseCode = "201", description = "Membre ajouté"),
+    @ApiResponse(responseCode = "201", description = "Membre ajouté",
+        content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
+            schema = @Schema(implementation = StoreMemberResponse.class))),
+    @ApiResponse(responseCode = "400", description = "Données invalides"),
+    @ApiResponse(responseCode = "401", description = "Token absent ou invalide"),
     @ApiResponse(responseCode = "404", description = "Supérette ou utilisateur introuvable"),
     @ApiResponse(responseCode = "409", description = "Utilisateur déjà membre")
   })
-  @PostMapping
+  @PostMapping("")
   public ResponseEntity<CustomResponse> add(
       @PathVariable UUID storeId,
       @Valid @RequestBody AddStoreMemberRequest request,
@@ -76,10 +84,16 @@ public class StoreMemberController {
 
   // ── Lister les membres ────────────────────────────────────────
 
-  @Operation(summary = "Lister les membres actifs de la supérette")
+  @Operation(summary = "Lister les membres actifs de la supérette",
+      description = "Rôle requis : Authentifié (ADMIN, OWNER, EMPLOYEE). Retourne la liste paginée des membres actifs.")
   @SecurityRequirement(name = "bearerAuth")
-  @ApiResponses({@ApiResponse(responseCode = "200", description = "Liste des membres")})
-  @GetMapping
+  @ApiResponses({
+    @ApiResponse(responseCode = "200", description = "Liste des membres",
+        content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
+            schema = @Schema(implementation = StoreMemberResponse.class))),
+    @ApiResponse(responseCode = "401", description = "Token absent ou invalide")
+  })
+  @GetMapping("")
   public ResponseEntity<CustomResponse> list(
       @PathVariable UUID storeId,
       @RequestParam(defaultValue = "0") int page,
@@ -105,10 +119,15 @@ public class StoreMemberController {
 
   // ── Modifier le rôle / statut d'un membre ─────────────────────
 
-  @Operation(summary = "Modifier le rôle ou le statut d'un membre")
+  @Operation(summary = "Modifier le rôle ou le statut d'un membre",
+      description = "Rôle requis : OWNER ou ADMIN. Modifie le rôle (MANAGER/EMPLOYEE) ou le statut actif/inactif d'un membre.")
   @SecurityRequirement(name = "bearerAuth")
   @ApiResponses({
-    @ApiResponse(responseCode = "200", description = "Membre mis à jour"),
+    @ApiResponse(responseCode = "200", description = "Membre mis à jour",
+        content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
+            schema = @Schema(implementation = StoreMemberResponse.class))),
+    @ApiResponse(responseCode = "400", description = "Données invalides"),
+    @ApiResponse(responseCode = "401", description = "Token absent ou invalide"),
     @ApiResponse(responseCode = "404", description = "Membre introuvable")
   })
   @PutMapping("/{memberId}")
@@ -132,10 +151,12 @@ public class StoreMemberController {
 
   // ── Retirer un membre ─────────────────────────────────────────
 
-  @Operation(summary = "Retirer un membre de la supérette (soft delete)")
+  @Operation(summary = "Retirer un membre de la supérette (soft delete)",
+      description = "Rôle requis : OWNER ou ADMIN. Désactive le membre sans le supprimer physiquement.")
   @SecurityRequirement(name = "bearerAuth")
   @ApiResponses({
     @ApiResponse(responseCode = "200", description = "Membre retiré"),
+    @ApiResponse(responseCode = "401", description = "Token absent ou invalide"),
     @ApiResponse(responseCode = "404", description = "Membre introuvable")
   })
   @DeleteMapping("/{memberId}")

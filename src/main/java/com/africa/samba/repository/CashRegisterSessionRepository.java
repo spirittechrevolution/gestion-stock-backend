@@ -17,4 +17,7 @@ public interface CashRegisterSessionRepository extends JpaRepository<CashRegiste
     List<CashRegisterSession> findByCashRegister(CashRegister cashRegister);
     Page<CashRegisterSession> findByCashRegister(CashRegister cashRegister, Pageable pageable);
     Optional<CashRegisterSession> findByUserAndCashRegister_Store_IdAndClosedAtIsNull(User user, UUID storeId);
+
+    Optional<CashRegisterSession> findByIdAndCashRegister_IdAndCashRegister_Store_Id(
+            UUID id, UUID cashRegisterId, UUID storeId);
 }

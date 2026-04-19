@@ -101,7 +101,7 @@ public class LaCodeListController {
 
   // ── Authentifié ────────────────────────────────────────────────
 
-  @GetMapping
+  @GetMapping("")
   @Operation(
       summary = "Liste paginée de tous les code lists",
       description = "Accessible à tout utilisateur authentifié. Supporte la pagination et le tri.",
@@ -148,7 +148,7 @@ public class LaCodeListController {
 
   // ── Admin ──────────────────────────────────────────────────────
 
-  @PostMapping
+  @PostMapping("")
   @Operation(
       summary = "Créer un code list (admin)",
       description =

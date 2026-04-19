@@ -14,6 +14,8 @@ import com.africa.samba.entity.User;
 import com.africa.samba.repository.UserRepository;
 import com.africa.samba.services.interfaces.StoreService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -28,6 +30,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -52,14 +55,18 @@ public class StoreController {
 
   // ── Créer une supérette ───────────────────────────────────────
 
-  @Operation(summary = "Créer une supérette pour l'utilisateur connecté")
+  @Operation(summary = "Créer une supérette pour l'utilisateur connecté",
+      description = "Rôle requis : OWNER. Crée une supérette associée à l'utilisateur connecté.")
   @SecurityRequirement(name = "bearerAuth")
   @ApiResponses({
-    @ApiResponse(responseCode = "201", description = "Supérette créée"),
+    @ApiResponse(responseCode = "201", description = "Supérette créée",
+        content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
+            schema = @Schema(implementation = StoreResponse.class))),
     @ApiResponse(responseCode = "400", description = "Données invalides"),
+    @ApiResponse(responseCode = "401", description = "Token absent ou invalide"),
     @ApiResponse(responseCode = "409", description = "Nom déjà utilisé par ce propriétaire")
   })
-  @PostMapping
+  @PostMapping("")
   public ResponseEntity<CustomResponse> create(
       @Valid @RequestBody CreateStoreRequest request, HttpServletRequest httpRequest)
       throws CustomException {
@@ -78,10 +85,14 @@ public class StoreController {
 
   // ── Obtenir une supérette par ID ──────────────────────────────
 
-  @Operation(summary = "Obtenir une supérette par son identifiant")
+  @Operation(summary = "Obtenir une supérette par son identifiant",
+      description = "Rôle requis : Authentifié (ADMIN, OWNER, EMPLOYEE).")
   @SecurityRequirement(name = "bearerAuth")
   @ApiResponses({
-    @ApiResponse(responseCode = "200", description = "Supérette trouvée"),
+    @ApiResponse(responseCode = "200", description = "Supérette trouvée",
+        content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
+            schema = @Schema(implementation = StoreResponse.class))),
+    @ApiResponse(responseCode = "401", description = "Token absent ou invalide"),
     @ApiResponse(responseCode = "404", description = "Supérette introuvable")
   })
   @GetMapping("/{id}")
@@ -101,9 +112,15 @@ public class StoreController {
 
   // ── Mes supérettes (propriétaire connecté) ────────────────────
 
-  @Operation(summary = "Lister les supérettes de l'utilisateur connecté")
+  @Operation(summary = "Lister les supérettes de l'utilisateur connecté",
+      description = "Rôle requis : OWNER. Retourne les supérettes dont l'utilisateur est propriétaire.")
   @SecurityRequirement(name = "bearerAuth")
-  @ApiResponses({@ApiResponse(responseCode = "200", description = "Liste des supérettes")})
+  @ApiResponses({
+    @ApiResponse(responseCode = "200", description = "Liste des supérettes",
+        content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
+            schema = @Schema(implementation = StoreResponse.class))),
+    @ApiResponse(responseCode = "401", description = "Token absent ou invalide")
+  })
   @GetMapping("/mine")
   public ResponseEntity<CustomResponse> listMine(
       @RequestParam(defaultValue = "0") int page,
@@ -129,13 +146,17 @@ public class StoreController {
 
   // ── Lister toutes les supérettes (admin) ──────────────────────
 
-  @Operation(summary = "Lister toutes les supérettes (admin)")
+  @Operation(summary = "Lister toutes les supérettes (admin)",
+      description = "Rôle requis : ADMIN. Retourne la liste paginée de toutes les supérettes.")
   @SecurityRequirement(name = "bearerAuth")
   @ApiResponses({
-    @ApiResponse(responseCode = "200", description = "Liste de toutes les supérettes"),
-    @ApiResponse(responseCode = "403", description = "Accès refusé")
+    @ApiResponse(responseCode = "200", description = "Liste de toutes les supérettes",
+        content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
+            schema = @Schema(implementation = StoreResponse.class))),
+    @ApiResponse(responseCode = "401", description = "Token absent ou invalide"),
+    @ApiResponse(responseCode = "403", description = "Accès refusé – rôle ADMIN requis")
   })
-  @GetMapping
+  @GetMapping("")
   public ResponseEntity<CustomResponse> listAll(
       @RequestParam(defaultValue = "0") int page,
       @RequestParam(defaultValue = "20") int size,
@@ -160,10 +181,15 @@ public class StoreController {
 
   // ── Mettre à jour une supérette ───────────────────────────────
 
-  @Operation(summary = "Mettre à jour une supérette")
+  @Operation(summary = "Mettre à jour une supérette",
+      description = "Rôle requis : OWNER ou ADMIN. Modifie les informations de la supérette.")
   @SecurityRequirement(name = "bearerAuth")
   @ApiResponses({
-    @ApiResponse(responseCode = "200", description = "Supérette mise à jour"),
+    @ApiResponse(responseCode = "200", description = "Supérette mise à jour",
+        content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
+            schema = @Schema(implementation = StoreResponse.class))),
+    @ApiResponse(responseCode = "400", description = "Données invalides"),
+    @ApiResponse(responseCode = "401", description = "Token absent ou invalide"),
     @ApiResponse(responseCode = "404", description = "Supérette introuvable")
   })
   @PutMapping("/{id}")
@@ -186,10 +212,12 @@ public class StoreController {
 
   // ── Supprimer (soft delete) une supérette ─────────────────────
 
-  @Operation(summary = "Désactiver une supérette (soft delete)")
+  @Operation(summary = "Désactiver une supérette (soft delete)",
+      description = "Rôle requis : OWNER ou ADMIN. Désactive la supérette sans la supprimer physiquement.")
   @SecurityRequirement(name = "bearerAuth")
   @ApiResponses({
     @ApiResponse(responseCode = "200", description = "Supérette désactivée"),
+    @ApiResponse(responseCode = "401", description = "Token absent ou invalide"),
     @ApiResponse(responseCode = "404", description = "Supérette introuvable")
   })
   @DeleteMapping("/{id}")
