@@ -6,6 +6,7 @@ import com.africa.samba.common.exception.CustomException;
 import com.africa.samba.common.util.CustomResponse;
 import com.africa.samba.common.util.RequestHeaderParser;
 import com.africa.samba.common.util.RoleGuard;
+import com.africa.samba.codeLists.StoreMemberRole;
 import com.africa.samba.dto.request.AddStoreMemberRequest;
 import com.africa.samba.dto.request.UpdateStoreMemberRequest;
 import com.africa.samba.dto.response.StoreMemberResponse;
@@ -85,7 +86,7 @@ public class StoreMemberController {
   // ── Lister les membres ────────────────────────────────────────
 
   @Operation(summary = "Lister les membres actifs de la supérette",
-      description = "Rôle requis : Authentifié (ADMIN, OWNER, EMPLOYEE). Retourne la liste paginée des membres actifs.")
+      description = "Rôle requis : Authentifié (ADMIN, OWNER, EMPLOYEE). Retourne la liste paginée des membres actifs, avec filtre optionnel par rôle (?role=MANAGER ou ?role=EMPLOYEE).")
   @SecurityRequirement(name = "bearerAuth")
   @ApiResponses({
     @ApiResponse(responseCode = "200", description = "Liste des membres",
@@ -100,6 +101,7 @@ public class StoreMemberController {
       @RequestParam(defaultValue = "20") int size,
       @RequestParam(defaultValue = "createdAt") String sortBy,
       @RequestParam(defaultValue = "desc") String sortDir,
+      @RequestParam(required = false) StoreMemberRole role,
       HttpServletRequest httpRequest)
       throws CustomException {
 
@@ -107,7 +109,9 @@ public class StoreMemberController {
 
     Pageable pageable =
         PageRequest.of(page, size, Sort.by(Sort.Direction.fromString(sortDir), sortBy));
-    Page<StoreMemberResponse> members = storeMemberService.listByStore(storeId, pageable);
+    Page<StoreMemberResponse> members = role != null
+        ? storeMemberService.listByRole(storeId, role, pageable)
+        : storeMemberService.listByStore(storeId, pageable);
 
     return ResponseEntity.ok(
         new CustomResponse(

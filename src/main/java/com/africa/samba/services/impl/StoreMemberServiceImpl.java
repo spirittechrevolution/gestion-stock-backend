@@ -1,5 +1,6 @@
 package com.africa.samba.services.impl;
 
+import com.africa.samba.codeLists.StoreMemberRole;
 import com.africa.samba.common.constants.ResponseMessageConstants;
 import com.africa.samba.common.exception.ConflictException;
 import com.africa.samba.common.exception.CustomException;
@@ -15,6 +16,7 @@ import com.africa.samba.repository.StoreMemberRepository;
 import com.africa.samba.repository.StoreRepository;
 import com.africa.samba.repository.UserRepository;
 import com.africa.samba.services.interfaces.StoreMemberService;
+import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -109,6 +111,20 @@ public class StoreMemberServiceImpl implements StoreMemberService {
     return storeMemberRepository
         .findByStoreIdAndActiveTrue(storeId, pageable)
         .map(StoreMemberMapper::toResponse);
+  }
+
+  @Override
+  public Page<StoreMemberResponse> listByRole(UUID storeId, StoreMemberRole role, Pageable pageable) {
+    return storeMemberRepository
+        .findByStoreIdAndRoleAndActiveTrue(storeId, role, pageable)
+        .map(StoreMemberMapper::toResponse);
+  }
+
+  @Override
+  public List<StoreMemberResponse> listByUser(UUID userId) {
+    return storeMemberRepository.findByUserIdAndActiveTrue(userId).stream()
+        .map(StoreMemberMapper::toResponse)
+        .toList();
   }
 
   @Override

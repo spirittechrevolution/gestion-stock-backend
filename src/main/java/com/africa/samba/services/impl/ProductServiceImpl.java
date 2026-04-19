@@ -44,6 +44,11 @@ public class ProductServiceImpl implements ProductService {
   @Override
   @Transactional
   public ProductResponse create(CreateProductRequest request) throws CustomException {
+    if (productRepository.existsByNameAndBrand(request.getName(), request.getBrand())) {
+      throw new ConflictException(
+          "Un produit avec ce nom et cette marque existe déjà : "
+              + request.getName() + " / " + request.getBrand());
+    }
     try {
       Product product =
           Product.builder()
@@ -57,6 +62,8 @@ public class ProductServiceImpl implements ProductService {
       Product saved = productRepository.save(product);
       log.info("Produit créé : id={}, name={}", saved.getId(), saved.getName());
       return ProductMapper.toResponse(saved);
+    } catch (ConflictException ex) {
+      throw ex;
     } catch (Exception ex) {
       throw new CustomException(ex, ResponseMessageConstants.PRODUCT_CREATE_FAILURE);
     }

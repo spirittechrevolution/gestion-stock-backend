@@ -131,4 +131,18 @@ public class ResponseMessageConstants {
   public static final String CASH_REGISTER_SESSION_NOT_FOUND = "CASH_REGISTER_SESSION_NOT_FOUND";
   public static final String CASH_REGISTER_SESSION_ALREADY_OPEN = "CASH_REGISTER_SESSION_ALREADY_OPEN";
   public static final String CASH_REGISTER_SESSION_USER_ALREADY_ASSIGNED = "CASH_REGISTER_SESSION_USER_ALREADY_ASSIGNED";
+
+  // ── USER PREFERENCES ────────────────────────────────────────────
+  public static final String USER_PREFERENCES_GET_SUCCESS = "USER_PREFERENCES_GET_SUCCESS";
+  public static final String USER_PREFERENCES_UPDATE_SUCCESS = "USER_PREFERENCES_UPDATE_SUCCESS";
+  public static final String USER_PREFERENCES_RESET_SUCCESS = "USER_PREFERENCES_RESET_SUCCESS";
+  public static final String USER_PREFERENCES_FCM_UPDATE_SUCCESS = "USER_PREFERENCES_FCM_UPDATE_SUCCESS";
+
+  // ── BARCODE LIST ─────────────────────────────────────────────────
+  public static final String BARCODE_GET_LIST_SUCCESS = "BARCODE_GET_LIST_SUCCESS";
+
+  // ── SALE ─────────────────────────────────────────────────────────
+  public static final String SALE_CREATE_SUCCESS = "SALE_CREATE_SUCCESS";
+  public static final String SALE_GET_LIST_SUCCESS = "SALE_GET_LIST_SUCCESS";
+  public static final String SALE_STATS_GET_SUCCESS = "SALE_STATS_GET_SUCCESS";
 }

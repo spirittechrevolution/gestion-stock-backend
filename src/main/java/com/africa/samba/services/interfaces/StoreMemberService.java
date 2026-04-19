@@ -1,9 +1,11 @@
 package com.africa.samba.services.interfaces;
 
+import com.africa.samba.codeLists.StoreMemberRole;
 import com.africa.samba.common.exception.CustomException;
 import com.africa.samba.dto.request.AddStoreMemberRequest;
 import com.africa.samba.dto.request.UpdateStoreMemberRequest;
 import com.africa.samba.dto.response.StoreMemberResponse;
+import java.util.List;
 import java.util.UUID;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -51,6 +53,24 @@ public interface StoreMemberService {
    * @return page de membres actifs
    */
   Page<StoreMemberResponse> listByStore(UUID storeId, Pageable pageable);
+
+  /**
+   * Retourne la liste paginée des membres actifs d'une supérette filtrée par rôle.
+   *
+   * @param storeId  UUID de la supérette
+   * @param role     rôle à filtrer ({@code MANAGER} ou {@code EMPLOYEE})
+   * @param pageable paramètres de pagination et de tri
+   * @return page de membres actifs du rôle donné
+   */
+  Page<StoreMemberResponse> listByRole(UUID storeId, StoreMemberRole role, Pageable pageable);
+
+  /**
+   * Retourne toutes les supérettes dont un utilisateur est membre actif.
+   *
+   * @param userId UUID de l'utilisateur
+   * @return liste des membres actifs de cet utilisateur (une entrée par supérette)
+   */
+  List<StoreMemberResponse> listByUser(UUID userId);
 
   /**
    * Vérifie si un utilisateur est membre actif d'une supérette.

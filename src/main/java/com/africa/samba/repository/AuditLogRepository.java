@@ -11,8 +11,14 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface AuditLogRepository extends JpaRepository<AuditLog, UUID> {
     List<AuditLog> findByStoreId(UUID storeId);
-    List<AuditLog> findByUserId(UUID userId);
-    List<AuditLog> findByEventType(String eventType);
-    List<AuditLog> findBySessionId(UUID sessionId);
     Page<AuditLog> findByStoreId(UUID storeId, Pageable pageable);
+
+    List<AuditLog> findByUserId(UUID userId);
+    Page<AuditLog> findByUserId(UUID userId, Pageable pageable);
+
+    List<AuditLog> findByEventType(String eventType);
+    Page<AuditLog> findByEventType(String eventType, Pageable pageable);
+
+    List<AuditLog> findBySessionId(UUID sessionId);
+    Page<AuditLog> findBySessionId(UUID sessionId, Pageable pageable);
 }

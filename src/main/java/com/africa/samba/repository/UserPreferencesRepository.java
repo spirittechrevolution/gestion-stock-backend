@@ -27,24 +27,31 @@ public interface UserPreferencesRepository extends JpaRepository<UserPreferences
     """)
   void updateFcmToken(@Param("utilisateurId") UUID utilisateurId, @Param("token") String token);
 
-  /** Tous les tokens FCM actifs d'une boutique — pour notifications push groupées */
+  /** Tokens FCM des membres actifs d'une supérette ayant activé notifRuptureStock */
   @Query(
       """
         SELECT p.fcmToken FROM UserPreferences p
-        WHERE p.utilisateur.boutique.id = :boutiqueId
+        WHERE p.utilisateur.id IN (
+            SELECT sm.user.id FROM StoreMember sm
+            WHERE sm.store.id = :storeId AND sm.active = true
+        )
           AND p.utilisateur.active = true
           AND p.fcmToken IS NOT NULL
           AND p.notifRuptureStock = true
     """)
-  List<String> findFcmTokensRuptureStock(@Param("boutiqueId") UUID boutiqueId);
+  List<String> findFcmTokensRuptureStock(@Param("storeId") UUID storeId);
 
+  /** Tokens FCM des membres actifs d'une supérette ayant activé notifStockFaible */
   @Query(
       """
         SELECT p.fcmToken FROM UserPreferences p
-        WHERE p.utilisateur.boutique.id = :boutiqueId
+        WHERE p.utilisateur.id IN (
+            SELECT sm.user.id FROM StoreMember sm
+            WHERE sm.store.id = :storeId AND sm.active = true
+        )
           AND p.utilisateur.active = true
           AND p.fcmToken IS NOT NULL
           AND p.notifStockFaible = true
     """)
-  List<String> findFcmTokensStockFaible(@Param("boutiqueId") UUID boutiqueId);
+  List<String> findFcmTokensStockFaible(@Param("storeId") UUID storeId);
 }

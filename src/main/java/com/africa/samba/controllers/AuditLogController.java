@@ -23,6 +23,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -52,6 +53,78 @@ public class AuditLogController {
             Pageable pageable,
             HttpServletRequest httpRequest) {
         Page<AuditLogResponse> page = auditLogRepository.findByStoreId(storeId, pageable)
+            .map(auditLogMapper::toResponse);
+        return ResponseEntity.ok(new CustomResponse(
+                Constants.Message.SUCCESS_BODY,
+                Constants.Status.OK,
+                "AUDIT_LOG_LIST_SUCCESS",
+                page));
+    }
+
+    @Operation(summary = "Historique par utilisateur",
+        description = "Rôle requis : ADMIN. Retourne les actions d'un utilisateur spécifique.")
+    @SecurityRequirement(name = "bearerAuth")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "Historique de l'utilisateur",
+            content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
+                schema = @Schema(implementation = AuditLogResponse.class))),
+        @ApiResponse(responseCode = "401", description = "Token absent ou invalide"),
+        @ApiResponse(responseCode = "403", description = "Accès refusé – rôle ADMIN requis")
+    })
+    @GetMapping("/user/{userId}")
+    public ResponseEntity<CustomResponse> listByUser(
+            @PathVariable UUID userId,
+            Pageable pageable,
+            HttpServletRequest httpRequest) {
+        Page<AuditLogResponse> page = auditLogRepository.findByUserId(userId, pageable)
+            .map(auditLogMapper::toResponse);
+        return ResponseEntity.ok(new CustomResponse(
+                Constants.Message.SUCCESS_BODY,
+                Constants.Status.OK,
+                "AUDIT_LOG_LIST_SUCCESS",
+                page));
+    }
+
+    @Operation(summary = "Historique par type d'événement",
+        description = "Rôle requis : ADMIN. Retourne toutes les actions d'un type donné (ex : SALE_CREATE, LOGIN).")
+    @SecurityRequirement(name = "bearerAuth")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "Historique par événement",
+            content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
+                schema = @Schema(implementation = AuditLogResponse.class))),
+        @ApiResponse(responseCode = "401", description = "Token absent ou invalide"),
+        @ApiResponse(responseCode = "403", description = "Accès refusé – rôle ADMIN requis")
+    })
+    @GetMapping("/event")
+    public ResponseEntity<CustomResponse> listByEventType(
+            @RequestParam String type,
+            Pageable pageable,
+            HttpServletRequest httpRequest) {
+        Page<AuditLogResponse> page = auditLogRepository.findByEventType(type, pageable)
+            .map(auditLogMapper::toResponse);
+        return ResponseEntity.ok(new CustomResponse(
+                Constants.Message.SUCCESS_BODY,
+                Constants.Status.OK,
+                "AUDIT_LOG_LIST_SUCCESS",
+                page));
+    }
+
+    @Operation(summary = "Historique par session de caisse",
+        description = "Rôle requis : ADMIN ou OWNER. Retourne les actions liées à une session de caisse.")
+    @SecurityRequirement(name = "bearerAuth")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "Historique de la session",
+            content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
+                schema = @Schema(implementation = AuditLogResponse.class))),
+        @ApiResponse(responseCode = "401", description = "Token absent ou invalide"),
+        @ApiResponse(responseCode = "403", description = "Accès refusé")
+    })
+    @GetMapping("/session/{sessionId}")
+    public ResponseEntity<CustomResponse> listBySession(
+            @PathVariable UUID sessionId,
+            Pageable pageable,
+            HttpServletRequest httpRequest) {
+        Page<AuditLogResponse> page = auditLogRepository.findBySessionId(sessionId, pageable)
             .map(auditLogMapper::toResponse);
         return ResponseEntity.ok(new CustomResponse(
                 Constants.Message.SUCCESS_BODY,

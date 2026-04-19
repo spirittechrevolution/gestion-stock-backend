@@ -8,8 +8,10 @@ import com.africa.samba.dto.request.RegisterCompleteRequest;
 import com.africa.samba.dto.response.RegisterResponse;
 import com.africa.samba.entity.OtpVerification;
 import com.africa.samba.entity.User;
+import com.africa.samba.entity.UserPreferences;
 import com.africa.samba.mapper.UserMapper;
 import com.africa.samba.repository.OtpVerificationRepository;
+import com.africa.samba.repository.UserPreferencesRepository;
 import com.africa.samba.repository.UserRepository;
 import com.africa.samba.services.interfaces.EmailService;
 import com.africa.samba.services.interfaces.KeycloakAdminService;
@@ -38,6 +40,7 @@ public class RegistrationServiceImpl implements RegistrationService {
 
   private final OtpVerificationRepository otpRepo;
   private final UserRepository userRepo;
+  private final UserPreferencesRepository preferencesRepo;
   private final KeycloakAdminService keycloakAdminService;
   private final SmsService smsService;
   private final EmailService emailService;
@@ -138,6 +141,10 @@ public class RegistrationServiceImpl implements RegistrationService {
       User user = userBuilder.build();
       user = userRepo.save(user);
       log.info("Utilisateur persisté en DB: {}", user.getId());
+
+      UserPreferences prefs = UserPreferences.builder().utilisateur(user).build();
+      preferencesRepo.save(prefs);
+      log.info("Préférences par défaut créées pour userId={}", user.getId());
 
       if (user.getEmail() != null && !user.getEmail().isBlank()) {
         emailService.sendWelcome(user.getEmail(), request.getFirstName());

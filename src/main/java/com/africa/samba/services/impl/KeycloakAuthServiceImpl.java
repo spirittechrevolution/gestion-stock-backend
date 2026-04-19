@@ -9,11 +9,14 @@ import com.africa.samba.dto.request.LoginRequest;
 import com.africa.samba.dto.request.LogoutRequest;
 import com.africa.samba.dto.request.PhoneLoginRequest;
 import com.africa.samba.dto.response.LoginResponse;
+import com.africa.samba.repository.UserRepository;
 import com.africa.samba.services.interfaces.KeycloakAdminService;
 import com.africa.samba.services.interfaces.KeycloakAuthService;
+import java.time.LocalDateTime;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.HttpClientErrorException;
@@ -31,18 +34,23 @@ public class KeycloakAuthServiceImpl implements KeycloakAuthService {
 
   private final KeycloakProperties props;
   private final KeycloakAdminService keycloakAdminService;
+  private final UserRepository userRepository;
   private final RestClient restClient;
 
   public KeycloakAuthServiceImpl(
-      KeycloakProperties props, KeycloakAdminService keycloakAdminService) {
+      KeycloakProperties props,
+      KeycloakAdminService keycloakAdminService,
+      UserRepository userRepository) {
     this.props = props;
     this.keycloakAdminService = keycloakAdminService;
+    this.userRepository = userRepository;
     this.restClient = RestClient.create();
   }
 
   // ── Login ──────────────────────────────────────────────────────
 
   @Override
+  @Transactional
   public LoginResponse login(LoginRequest request) throws CustomException {
     MultiValueMap<String, String> form = new LinkedMultiValueMap<>();
     form.add("grant_type", "password");
@@ -53,13 +61,18 @@ public class KeycloakAuthServiceImpl implements KeycloakAuthService {
     form.add("scope", "openid profile email");
 
     try {
-      return restClient
-          .post()
-          .uri(tokenEndpoint())
-          .contentType(MediaType.APPLICATION_FORM_URLENCODED)
-          .body(form)
-          .retrieve()
-          .body(LoginResponse.class);
+      LoginResponse response =
+          restClient
+              .post()
+              .uri(tokenEndpoint())
+              .contentType(MediaType.APPLICATION_FORM_URLENCODED)
+              .body(form)
+              .retrieve()
+              .body(LoginResponse.class);
+      userRepository
+          .findByEmail(request.getEmail())
+          .ifPresent(u -> userRepository.updateDerniereConnexion(u.getId(), LocalDateTime.now()));
+      return response;
     } catch (HttpClientErrorException e) {
       if (e.getStatusCode().value() == 401 || e.getStatusCode().value() == 400) {
         throw new CustomException(
@@ -74,6 +87,7 @@ public class KeycloakAuthServiceImpl implements KeycloakAuthService {
   // ── Login by Phone ─────────────────────────────────────────────
 
   @Override
+  @Transactional
   public LoginResponse loginByPhone(PhoneLoginRequest request) throws CustomException {
     String username;
     try {
@@ -93,13 +107,18 @@ public class KeycloakAuthServiceImpl implements KeycloakAuthService {
     form.add("scope", "openid profile email");
 
     try {
-      return restClient
-          .post()
-          .uri(tokenEndpoint())
-          .contentType(MediaType.APPLICATION_FORM_URLENCODED)
-          .body(form)
-          .retrieve()
-          .body(LoginResponse.class);
+      LoginResponse response =
+          restClient
+              .post()
+              .uri(tokenEndpoint())
+              .contentType(MediaType.APPLICATION_FORM_URLENCODED)
+              .body(form)
+              .retrieve()
+              .body(LoginResponse.class);
+      userRepository
+          .findByPhone(request.getPhone())
+          .ifPresent(u -> userRepository.updateDerniereConnexion(u.getId(), LocalDateTime.now()));
+      return response;
     } catch (HttpClientErrorException e) {
       if (e.getStatusCode().value() == 401 || e.getStatusCode().value() == 400) {
         throw new CustomException(

@@ -11,7 +11,9 @@ import com.africa.samba.dto.request.CreateProductRequest;
 import com.africa.samba.dto.request.QuickCreateProductRequest;
 import com.africa.samba.dto.request.UpdateProductRequest;
 import com.africa.samba.dto.response.ProductResponse;
+import com.africa.samba.repository.BarcodeRepository;
 import com.africa.samba.services.interfaces.ProductService;
+import java.util.List;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -49,6 +51,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class ProductController {
 
   private final ProductService productService;
+  private final BarcodeRepository barcodeRepository;
   private final RequestHeaderParser requestHeaderParser;
 
   // ── Créer un produit ──────────────────────────────────────────
@@ -311,6 +314,43 @@ public class ProductController {
             Constants.Status.OK,
             ResponseMessageConstants.PRODUCT_DELETE_SUCCESS,
             null));
+  }
+
+  // ── Lister les codes-barres d'un produit ─────────────────────
+
+  @Operation(
+      summary = "Lister les codes-barres d'un produit",
+      description = "Rôle requis : Authentifié. Retourne tous les codes-barres associés à un produit.")
+  @SecurityRequirement(name = "bearerAuth")
+  @ApiResponses({
+    @ApiResponse(
+        responseCode = "200",
+        description = "Liste des codes-barres",
+        content = @Content(
+            mediaType = MediaType.APPLICATION_JSON_VALUE,
+            schema = @Schema(implementation = ProductResponse.BarcodeResponse.class)
+        )
+    ),
+    @ApiResponse(responseCode = "401", description = "Token absent ou invalide"),
+    @ApiResponse(responseCode = "403", description = "Accès refusé")
+  })
+  @GetMapping("/{productId}/barcodes")
+  public ResponseEntity<CustomResponse> listBarcodes(
+      @PathVariable UUID productId, HttpServletRequest httpRequest) throws CustomException {
+
+    RoleGuard.requireAuthenticated(requestHeaderParser, httpRequest);
+
+    List<ProductResponse.BarcodeResponse> barcodes =
+        barcodeRepository.findByProductId(productId).stream()
+            .map(b -> new ProductResponse.BarcodeResponse(b.getId(), b.getCode(), b.getType()))
+            .toList();
+
+    return ResponseEntity.ok(
+        new CustomResponse(
+            Constants.Message.SUCCESS_BODY,
+            Constants.Status.OK,
+            ResponseMessageConstants.BARCODE_GET_LIST_SUCCESS,
+            barcodes));
   }
 
   // ── Ajouter un code-barres à un produit ───────────────────────
