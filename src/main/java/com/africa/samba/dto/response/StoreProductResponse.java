@@ -13,6 +13,8 @@ public record StoreProductResponse(
     String productBrand,
     String productCategory,
     BigDecimal price,
+    BigDecimal costPrice,
+    BigDecimal margin,
     int stock,
     int stockMin,
     NiveauAlerte niveauAlerte,

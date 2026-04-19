@@ -54,7 +54,8 @@
        └──────────────│───────────────────────│└──────────────────┘
                       │ store_id (FK)         │
                       │ product_id (FK)       │
-                      │ price                 │
+                      │ price (vente)         │
+                      │ cost_price (achat)    │
                       │ stock                 │
                       │ stock_min             │
                       │ UNIQUE(store_id,      │
@@ -112,8 +113,11 @@ Chaque supérette choisit ses produits et définit ses propres prix.
 | `store_id` | UUID (FK) | Référence vers `stores` |
 | `product_id` | UUID (FK) | Référence vers `products` |
 | `price` | DECIMAL | Prix de vente dans cette supérette |
+| `cost_price` | DECIMAL | Prix d'achat fournisseur (nullable) |
 | `stock` | INTEGER | Stock disponible |
 | `stock_min` | INTEGER | Seuil d'alerte rupture |
+
+> **Marge unitaire** = `price − cost_price`. Ce calcul est exposé automatiquement dans la réponse API (`margin`).
 
 **Contrainte :** `UNIQUE(store_id, product_id)` — un produit ne peut apparaître qu'une seule fois par supérette.
 
@@ -293,9 +297,22 @@ Samba distingue deux niveaux de rôles :
 |--------|-------|-------|
 | Nom, marque, catégorie | **Global** (partagé) | `products` |
 | Code-barres | **Global** (partagé) | `barcodes` |
-| Prix, stock | **Local** (par supérette) | `store_products` |
+| Prix de vente, prix d'achat, stock | **Local** (par supérette) | `store_products` |
 
-### 5.3 Contraintes
+### 5.3 Métriques de rentabilité
+
+Grâce au champ `cost_price` (prix d'achat) sur `store_products`, les métriques suivantes sont calculables :
+
+| Métrique | Formule | Niveau |
+|----------|---------|--------|
+| Marge unitaire | `price − cost_price` | Par produit × supérette |
+| Bénéfice par vente | `(price − cost_price) × quantité` | Par transaction |
+| Marge par catégorie | `Σ marges des produits de la catégorie` | Par catégorie × supérette |
+| Taux de marge | `(price − cost_price) / price × 100` | % par produit |
+
+> Le champ `margin` est calculé automatiquement et renvoyé dans la réponse API `StoreProductResponse`.
+
+### 5.4 Contraintes
 
 | Règle | Description |
 |-------|-------------|
@@ -304,7 +321,7 @@ Samba distingue deux niveaux de rôles :
 | Pas de prix global | Le prix est **toujours** défini par la supérette |
 | Unicité store/product | `UNIQUE(store_id, product_id)` dans `store_products` |
 
-### 5.4 Alertes stock
+### 5.5 Alertes stock
 
 | Niveau | Condition | Action |
 |--------|-----------|--------|

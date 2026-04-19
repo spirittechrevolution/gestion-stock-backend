@@ -35,5 +35,7 @@ public interface ProductService {
 
   ProductResponse addBarcode(UUID productId, CreateBarcodeRequest request) throws CustomException;
 
+  ProductResponse generateInternalBarcode(UUID productId) throws CustomException;
+
   ProductResponse.BarcodeResponse lookupBarcode(String code) throws CustomException;
 }

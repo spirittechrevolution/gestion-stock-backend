@@ -255,6 +255,34 @@ public class ProductController {
                 response));
   }
 
+  // ── Générer un code-barres interne ────────────────────────────
+
+  @Operation(
+      summary = "Générer un code-barres interne pour un produit",
+      description =
+          "Génère un code-barres séquentiel au format 2XXXXXXXXXXXX "
+              + "(préfixe 2 + 12 chiffres, ex : 2000000000001).")
+  @SecurityRequirement(name = "bearerAuth")
+  @ApiResponses({
+    @ApiResponse(responseCode = "201", description = "Code-barres interne généré"),
+    @ApiResponse(responseCode = "404", description = "Produit introuvable")
+  })
+  @PostMapping("/{productId}/barcodes/generate")
+  public ResponseEntity<CustomResponse> generateInternalBarcode(
+      @PathVariable UUID productId, HttpServletRequest httpRequest) throws CustomException {
+
+    RoleGuard.requireAuthenticated(requestHeaderParser, httpRequest);
+
+    ProductResponse response = productService.generateInternalBarcode(productId);
+    return ResponseEntity.status(HttpStatus.CREATED)
+        .body(
+            new CustomResponse(
+                Constants.Message.SUCCESS_BODY,
+                Constants.Status.CREATED,
+                ResponseMessageConstants.BARCODE_GENERATE_SUCCESS,
+                response));
+  }
+
   // ── Rechercher par code-barres ────────────────────────────────
 
   @Operation(summary = "Rechercher un produit par code-barres")

@@ -20,6 +20,8 @@ public class StoreProductMapper {
         product.getBrand(),
         product.getCategory(),
         sp.getPrice(),
+        sp.getCostPrice(),
+        sp.getMargin(),
         sp.getStock(),
         sp.getStockMin() != null ? sp.getStockMin() : 0,
         sp.getNiveauAlerte(),

@@ -13,6 +13,9 @@ public class UpdateStoreProductRequest {
   @DecimalMin(value = "0.0", inclusive = false)
   private BigDecimal price;
 
+  @DecimalMin(value = "0.0", inclusive = false)
+  private BigDecimal costPrice;
+
   @Min(0)
   private Integer stock;
 

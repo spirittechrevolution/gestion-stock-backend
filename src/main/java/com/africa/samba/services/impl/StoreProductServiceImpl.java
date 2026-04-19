@@ -61,6 +61,7 @@ public class StoreProductServiceImpl implements StoreProductService {
               .store(store)
               .product(product)
               .price(request.getPrice())
+              .costPrice(request.getCostPrice())
               .stock(request.getStock())
               .stockMin(request.getStockMin())
               .build();
@@ -92,6 +93,7 @@ public class StoreProductServiceImpl implements StoreProductService {
                         "Produit de supérette introuvable : storeProductId=" + storeProductId));
 
     if (request.getPrice() != null) sp.setPrice(request.getPrice());
+    if (request.getCostPrice() != null) sp.setCostPrice(request.getCostPrice());
     if (request.getStock() != null) sp.setStock(request.getStock());
     if (request.getStockMin() != null) sp.setStockMin(request.getStockMin());
     if (request.getActive() != null) sp.setActive(request.getActive());

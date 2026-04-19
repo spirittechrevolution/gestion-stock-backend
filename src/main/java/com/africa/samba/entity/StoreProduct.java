@@ -64,6 +64,11 @@ public class StoreProduct extends BaseEntity {
   @Column(nullable = false, precision = 12, scale = 2)
   private BigDecimal price;
 
+  /** Prix d'achat fournisseur dans cette supérette (en FCFA) */
+  @DecimalMin(value = "0.0", inclusive = false, message = "Le prix d'achat doit être positif")
+  @Column(name = "cost_price", precision = 12, scale = 2)
+  private BigDecimal costPrice;
+
   /** Stock disponible dans cette supérette */
   @Min(0)
   @Column(nullable = false)
@@ -82,6 +87,12 @@ public class StoreProduct extends BaseEntity {
   private Boolean active = true;
 
   // ── Méthodes métier ───────────────────────────────────────────────────
+
+  /** Calcule la marge unitaire (prix de vente − prix d'achat). Null si pas de prix d'achat. */
+  public BigDecimal getMargin() {
+    if (costPrice == null) return null;
+    return price.subtract(costPrice);
+  }
 
   /** Calcule le niveau d'alerte actuel du stock */
   public NiveauAlerte getNiveauAlerte() {

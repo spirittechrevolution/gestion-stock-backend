@@ -6,6 +6,7 @@ import com.africa.samba.common.constants.ResponseMessageConstants;
 import com.africa.samba.common.exception.ConflictException;
 import com.africa.samba.common.exception.CustomException;
 import com.africa.samba.common.exception.NotFoundException;
+import com.africa.samba.common.util.BarcodeGenerator;
 import com.africa.samba.dto.request.CreateBarcodeRequest;
 import com.africa.samba.dto.request.CreateProductRequest;
 import com.africa.samba.dto.request.QuickCreateProductRequest;
@@ -85,7 +86,7 @@ public class ProductServiceImpl implements ProductService {
 
       Product savedProduct = productRepository.save(product);
 
-      // 2 — Créer un code-barres interne si fourni
+      // 2 — Code-barres : utiliser celui fourni, sinon en générer un INTERNAL
       if (request.getBarcode() != null && !request.getBarcode().isBlank()) {
         if (!barcodeRepository.existsByCode(request.getBarcode())) {
           Barcode barcode =
@@ -96,6 +97,18 @@ public class ProductServiceImpl implements ProductService {
                   .build();
           barcodeRepository.save(barcode);
         }
+      } else {
+        // Générer automatiquement un code interne (2000000000001, 2000000000002, ...)
+        String nextCode =
+            BarcodeGenerator.next(barcodeRepository.findMaxInternalCode().orElse(null));
+        Barcode internalBarcode =
+            Barcode.builder()
+                .code(nextCode)
+                .type(BarcodeType.INTERNAL)
+                .product(savedProduct)
+                .build();
+        barcodeRepository.save(internalBarcode);
+        log.info("Code-barres interne généré : {}", nextCode);
       }
 
       // 3 — Ajouter immédiatement au catalogue de la supérette
@@ -104,6 +117,7 @@ public class ProductServiceImpl implements ProductService {
               .store(store)
               .product(savedProduct)
               .price(request.getPrice())
+              .costPrice(request.getCostPrice())
               .stock(request.getStock())
               .stockMin(request.getStockMin())
               .build();
@@ -224,6 +238,25 @@ public class ProductServiceImpl implements ProductService {
     barcodeRepository.save(barcode);
     log.info("Code-barres ajouté : code={}, productId={}", request.getCode(), productId);
 
+    return ProductMapper.toResponse(productRepository.findById(productId).orElseThrow());
+  }
+
+  @Override
+  @Transactional
+  public ProductResponse generateInternalBarcode(UUID productId) throws CustomException {
+    Product product =
+        productRepository
+            .findById(productId)
+            .orElseThrow(
+                () -> new NotFoundException("Produit introuvable avec l'id : " + productId));
+
+    String nextCode = BarcodeGenerator.next(barcodeRepository.findMaxInternalCode().orElse(null));
+
+    Barcode barcode =
+        Barcode.builder().code(nextCode).type(BarcodeType.INTERNAL).product(product).build();
+    barcodeRepository.save(barcode);
+
+    log.info("Code-barres interne généré : code={}, productId={}", nextCode, productId);
     return ProductMapper.toResponse(productRepository.findById(productId).orElseThrow());
   }
 
